@@ -255,15 +255,15 @@ toolbox.register("attribute", random.random)
 toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attribute, n=IND_SIZE)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
-# # test
-# ind1 = toolbox.individual()
-# print(ind1)
-# print(ind1.fitness.valid)
+# test
+ind1 = toolbox.individual()
+print(ind1)
+print(ind1.fitness.valid)
 
-# # test 2
-# ind1.fitness.values = evaluate(ind1)
-# print(ind1.fitness.valid)
-# print(ind1.fitness)
+# test 2
+ind1.fitness.values = evaluate(ind1)
+print(ind1.fitness.valid)
+print(ind1.fitness)
 
 layout = graph_layout(ind1)
 
@@ -271,6 +271,7 @@ g = nx.Graph()
 g.add_nodes_from(nodes)
 g.add_edges_from(edges)
 nx.draw(g, pos=layout, with_labels=True)
+plt.savefig("before.png")
 
 toolbox.register("mate", tools.cxUniform, indpb=0.2) # blend (alpha=0.2 - why? what is even that?), uniform, onepoint, twopoint
 toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=1, indpb=0.2) # ?
@@ -297,6 +298,7 @@ G.add_nodes_from(nodes)
 G.add_edges_from(edges)
 
 nx.draw(G, pos=best_layout, with_labels=True)
+plt.savefig("after.png")
 print(best_individual.fitness)
 
 #=============================================================#

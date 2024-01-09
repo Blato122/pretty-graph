@@ -1,9 +1,9 @@
 import random
-!pip install deap
 from deap import base, creator, tools, algorithms
 import networkx as nx
 import numpy as np
 import math
+import matplotlib.pyplot as plt
 
 random.seed(42)
 
@@ -11,42 +11,44 @@ random.seed(42)
 Creating a graph to produce a user-friendly representation of.
 It is only necessary to specify the edges of a graph.
 """
+graphs = {
+  "A": [ # star graph
+      (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7), (0, 8), (0, 9),
+      (0, 10), (0, 11), (0, 12), (0, 13), (0, 14), (0, 15), (0, 16)
+  ],
 
-a = [ # star graph
-    (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7), (0, 8), (0, 9),
-    (0, 10), (0, 11), (0, 12), (0, 13), (0, 14), (0, 15), (0, 16)
-]
+  "B": [ # square 4x4 grid
+      (1, 2), (1, 5), (2, 1), (2, 3), (2, 6),
+      (3, 2), (3, 4), (3, 7), (4, 3), (4, 8),
+      (5, 1), (5, 6), (5, 9), (6, 2), (6, 5), (6, 7), (6, 10),
+      (7, 3), (7, 6), (7, 8), (7, 11), (8, 4), (8, 7), (8, 12),
+      (9, 5), (9, 10), (9, 13), (10, 6), (10, 9), (10, 11), (10, 14),
+      (11, 7), (11, 10), (11, 12), (11, 15), (12, 8), (12, 11), (12, 16),
+      (13, 9), (13, 14), (14, 10), (14, 13), (14, 15),
+      (15, 11), (15, 14), (15, 16), (16, 12), (16, 15)
+  ],
 
-b = [ # square 4x4 grid
-    (1, 2), (1, 5), (2, 1), (2, 3), (2, 6),
-    (3, 2), (3, 4), (3, 7), (4, 3), (4, 8),
-    (5, 1), (5, 6), (5, 9), (6, 2), (6, 5), (6, 7), (6, 10),
-    (7, 3), (7, 6), (7, 8), (7, 11), (8, 4), (8, 7), (8, 12),
-    (9, 5), (9, 10), (9, 13), (10, 6), (10, 9), (10, 11), (10, 14),
-    (11, 7), (11, 10), (11, 12), (11, 15), (12, 8), (12, 11), (12, 16),
-    (13, 9), (13, 14), (14, 10), (14, 13), (14, 15),
-    (15, 11), (15, 14), (15, 16), (16, 12), (16, 15)
-]
+  "C": [ # simple
+      (0, 1), (0, 2), (0, 3), (1, 2), (1, 4), (2, 3), (3, 4), (4, 0)
+  ],
 
-c = [ # simple
-    (0, 1), (0, 2), (0, 3), (1, 2), (1, 4), (2, 3), (3, 4), (4, 0)
-]
+  "D": [ # not so simple
+      (4, 13), (13, 9), (9, 5), (9, 11), (11, 6), (6, 0),
+      (6, 2), (0, 2), (2, 17), (17, 10), (17, 7), (7, 16),
+      (7, 15), (10, 15), (0, 15), (15, 3), (17, 14), (3, 14),
+      (1, 3), (1, 14), (1, 12), (1, 8), (12, 13), (8, 13)
+  ],
 
-d = [ # not so simple
-    (4, 13), (13, 9), (9, 5), (9, 11), (11, 6), (6, 0),
-    (6, 2), (0, 2), (2, 17), (17, 10), (17, 7), (7, 16),
-    (7, 15), (10, 15), (0, 15), (15, 3), (17, 14), (3, 14),
-    (1, 3), (1, 14), (1, 12), (1, 8), (12, 13), (8, 13)
-]
+  "E": [ # K 4,7 graph (18 edge crossings)
+      (0, 4), (0, 5), (0, 6), (0, 7), (0, 8), (0, 9), (0, 10),
+      (1, 4), (1, 5), (1, 6), (1, 7), (1, 8), (1, 9), (1, 10),
+      (2, 4), (2, 5), (2, 6), (2, 7), (2, 8), (2, 9), (2, 10),
+      (3, 4), (3, 5), (3, 6), (3, 7), (3, 8), (3, 9), (3, 10),
+  ],
+}
 
-e = [ # K 4,7 graph (18 edge crossings)
-    (0, 4), (0, 5), (0, 6), (0, 7), (0, 8), (0, 9), (0, 10),
-    (1, 4), (1, 5), (1, 6), (1, 7), (1, 8), (1, 9), (1, 10),
-    (2, 4), (2, 5), (2, 6), (2, 7), (2, 8), (2, 9), (2, 10),
-    (3, 4), (3, 5), (3, 6), (3, 7), (3, 8), (3, 9), (3, 10),
-]
-
-edges = e
+choice = "E"
+edges = graphs[choice]
 nodes = set(node for edge in edges for node in edge)
 n = len(nodes)
 
@@ -255,14 +257,14 @@ toolbox.register("attribute", random.random)
 toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attribute, n=IND_SIZE)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
+import multiprocessing
+
+pool = multiprocessing.Pool()
+toolbox.register("map", pool.map)
+
 # test
 ind1 = toolbox.individual()
-print(ind1)
-print(ind1.fitness.valid)
-
-# test 2
 ind1.fitness.values = evaluate(ind1)
-print(ind1.fitness.valid)
 print(ind1.fitness)
 
 layout = graph_layout(ind1)
@@ -272,6 +274,7 @@ g.add_nodes_from(nodes)
 g.add_edges_from(edges)
 nx.draw(g, pos=layout, with_labels=True)
 plt.savefig("before.png")
+plt.close()
 
 toolbox.register("mate", tools.cxUniform, indpb=0.2) # blend (alpha=0.2 - why? what is even that?), uniform, onepoint, twopoint
 toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=1, indpb=0.2) # ?
@@ -290,15 +293,23 @@ pop = toolbox.population(n=MU)
 hof = tools.ParetoFront()
 algorithms.eaMuPlusLambda(pop, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN, halloffame=hof, verbose=True);
 
-best_individual = hof.items[0]
+best_individual = tools.selBest(pop, 1)[0]
 best_layout = graph_layout(best_individual)
-
 G = nx.Graph()
 G.add_nodes_from(nodes)
 G.add_edges_from(edges)
-
 nx.draw(G, pos=best_layout, with_labels=True)
-plt.savefig("after.png")
+plt.savefig("after_selbest_" + choice + ".png")
 print(best_individual.fitness)
+plt.close()
 
+best_individual = hof.items[0] # check if selBest would work
+nx.draw(G, pos=best_layout, with_labels=True)
+plt.savefig("after_hof_" + choice + ".png")
+print(best_individual.fitness)
+plt.close()
+
+nx.draw(G, pos=nx.spring_layout(G), with_labels=True)
+plt.savefig("after_spring_" + choice + ".png")
+print(best_individual.fitness)
 #=============================================================#

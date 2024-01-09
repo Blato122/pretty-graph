@@ -47,268 +47,271 @@ graphs = {
   ],
 }
 
-choice = "E"
-edges = graphs[choice]
-nodes = set(node for edge in edges for node in edge)
-n = len(nodes)
+for key, _ in graphs.items():
+  edges = graphs[key]
+  nodes = set(node for edge in edges for node in edge)
+  n = len(nodes)
 
-def graph_layout(ind):
-  """
-  Creates a dictionary with node numbers as keys and x, y node coordinates as values.
-  Node coords are retrieved from an individual that stores them in a flat list: [x1, y1, x2, y2, ...].
-  """
-
-  node_coords = [(ind[i], ind[i+1]) for i in range(0, len(ind), 2)]
-  layout_dict = {node: coords for node, coords in zip(nodes, node_coords)}
-  return layout_dict
-
-def ccw(A,B,C):
-	return (C[1]-A[1])*(B[0]-A[0]) > (B[1]-A[1])*(C[0]-A[0]) # 0 <-> x, 1 <-> y
-
-def _intersect(A,B,C,D):
-	return ccw(A,C,D) != ccw(B,C,D) and ccw(A,B,C) != ccw(A,B,D)
-
-def intersect(x1, y1, x2, y2, x3, y3, x4, y4):
-  """
-  Return true if line segments 12 and 34 intersect.
-  """
-  return _intersect((x1, y1), (x2, y2), (x3, y3), (x4, y4))
-
-def edge_crossings(ind):
-  """
-  Returns the number of edge crossings in a graph.
-  """
-
-  layout_dict = graph_layout(ind)
-  crossings = 0
-
-  checked_edges = []
-
-  for edge1 in edges:
-        x1, y1 = layout_dict[edge1[0]]
-        x2, y2 = layout_dict[edge1[1]]
-
-        for edge2 in edges:
-            if edge1 != edge2 and set([edge1, edge2]) not in checked_edges: # in - problem?
-                nodes = set([*edge1, *edge2])
-                if len(nodes) != 4: continue # explain
-
-                x3, y3 = layout_dict[edge2[0]]
-                x4, y4 = layout_dict[edge2[1]]
-
-                checked_edges.append(set([edge1, edge2]))
-
-                if intersect(x1, y1, x2, y2, x3, y3, x4, y4):
-                  # print(edge1, edge2)
-                  crossings += 1
-
-  return crossings
-
-def edge_length_var(ind):
-  """
-  Returns the variance of the lengths of graph edges.
-  """
-
-  layout_dict = graph_layout(ind)
-  edge_lengths = []
-
-  for edge in edges:
-    x1, y1 = layout_dict[edge[0]]
-    x2, y2 = layout_dict[edge[1]]
-    len = ((x1-x2)**2 + (y1-y2)**2)**0.5
-    edge_lengths.append(len)
-
-  return np.var(edge_lengths)
-
-def node_node_dist(ind):
-  """
-  Returns the variance of the distances between nodes and
-  returns the minimal distance between nodes.
-  """
-
-  layout_dict = graph_layout(ind)
-  dists = []
-
-  for node1 in nodes:
-    x1, y1 = layout_dict[node1]
-    for node2 in nodes:
-      if node1 != node2:
-        x2, y2 = layout_dict[node2]
-        dist = ((x1-x2)**2 + (y1-y2)**2)**0.5
-        dists.append(dist)
-
-  return np.var(dists), min(dists) # idk if both are necessary but I think so, they are responsible for different things
-
-def distance_to_edge(node_coords, edge_coords):
+  def graph_layout(ind):
     """
-    Returns the distance from a node to its nearest point on an edge (at 90 degrees).
+    Creates a dictionary with node numbers as keys and x, y node coordinates as values.
+    Node coords are retrieved from an individual that stores them in a flat list: [x1, y1, x2, y2, ...].
     """
 
-    x0, y0 = node_coords
-    x1, y1 = edge_coords[0]
-    x2, y2 = edge_coords[1]
+    node_coords = [(ind[i], ind[i+1]) for i in range(0, len(ind), 2)]
+    layout_dict = {node: coords for node, coords in zip(nodes, node_coords)}
+    return layout_dict
 
-    # calculate coords of a point that's in the middle of the edge
-    mx = (x1+x2)/2
-    my = (y1+y2)/2
+  def ccw(A,B,C):
+    return (C[1]-A[1])*(B[0]-A[0]) > (B[1]-A[1])*(C[0]-A[0]) # 0 <-> x, 1 <-> y
 
-    # calculate the distance between the node and the middle of the edge
-    dist = ((x0-mx)**2 + (y0-my)**2)**0.5
-    return dist
+  def _intersect(A,B,C,D):
+    return ccw(A,C,D) != ccw(B,C,D) and ccw(A,B,C) != ccw(A,B,D)
 
-def node_edge_dist(ind):
+  def intersect(x1, y1, x2, y2, x3, y3, x4, y4):
+    """
+    Return true if line segments 12 and 34 intersect.
+    """
+    return _intersect((x1, y1), (x2, y2), (x3, y3), (x4, y4))
+
+  def edge_crossings(ind):
+    """
+    Returns the number of edge crossings in a graph.
+    """
+
+    layout_dict = graph_layout(ind)
+    crossings = 0
+
+    checked_edges = []
+
+    for edge1 in edges:
+          x1, y1 = layout_dict[edge1[0]]
+          x2, y2 = layout_dict[edge1[1]]
+
+          for edge2 in edges:
+              if edge1 != edge2 and set([edge1, edge2]) not in checked_edges: # in - problem?
+                  nodes = set([*edge1, *edge2])
+                  if len(nodes) != 4: continue # explain
+
+                  x3, y3 = layout_dict[edge2[0]]
+                  x4, y4 = layout_dict[edge2[1]]
+
+                  checked_edges.append(set([edge1, edge2]))
+
+                  if intersect(x1, y1, x2, y2, x3, y3, x4, y4):
+                    # print(edge1, edge2)
+                    crossings += 1
+
+    return crossings
+
+  def edge_length_var(ind):
+    """
+    Returns the variance of the lengths of graph edges.
+    """
+
+    layout_dict = graph_layout(ind)
+    edge_lengths = []
+
+    for edge in edges:
+      x1, y1 = layout_dict[edge[0]]
+      x2, y2 = layout_dict[edge[1]]
+      len = ((x1-x2)**2 + (y1-y2)**2)**0.5
+      edge_lengths.append(len)
+
+    return np.var(edge_lengths)
+
+  def node_node_dist(ind):
+    """
+    Returns the variance of the distances between nodes and
+    returns the minimal distance between nodes.
+    """
+
+    layout_dict = graph_layout(ind)
+    dists = []
+
+    for node1 in nodes:
+      x1, y1 = layout_dict[node1]
+      for node2 in nodes:
+        if node1 != node2:
+          x2, y2 = layout_dict[node2]
+          dist = ((x1-x2)**2 + (y1-y2)**2)**0.5
+          dists.append(dist)
+
+    return np.var(dists), min(dists) # idk if both are necessary but I think so, they are responsible for different things
+
+  def distance_to_edge(node_coords, edge_coords):
+      """
+      Returns the distance from a node to its nearest point on an edge (at 90 degrees).
+      """
+
+      x0, y0 = node_coords
+      x1, y1 = edge_coords[0]
+      x2, y2 = edge_coords[1]
+
+      # calculate coords of a point that's in the middle of the edge
+      mx = (x1+x2)/2
+      my = (y1+y2)/2
+
+      # calculate the distance between the node and the middle of the edge
+      dist = ((x0-mx)**2 + (y0-my)**2)**0.5
+      return dist
+
+  def node_edge_dist(ind):
+    """
+    Returns the minimum distance between the nodes and the edges.
+    """
+
+    layout_dict = graph_layout(ind)
+    dists = []
+
+    for node, coords in layout_dict.items():
+      # find the nearest edge for each node
+      nearest_edge_distance = min(distance_to_edge(coords, (layout_dict[edge[0]], layout_dict[edge[1]])) for edge in edges)
+      dists.append(nearest_edge_distance)
+
+    return min(dists)
+
+  def calculate_angle(nbr1, nbr2, node):
+    """
+    Calculates the angle between 3 2d points, node being the center one.
+    """
+
+    ang = math.degrees(math.atan2(nbr2[1]-node[1], nbr2[0]-node[0]) - math.atan2(nbr1[1]-node[1], nbr1[0]-node[0]))
+    return ang + 360 if ang < 0 else ang
+
+  def neighbors(node):
+    """
+    Returns a list of neighbors of a given node.
+    """
+
+    nbrs = set()
+    for edge in edges:
+        if node in edge:
+            nbrs.update(edge)
+
+    nbrs.remove(node)  # remove the original node from the neighbors
+    return list(nbrs)
+
+  def edge_angle_var(ind):
+    """
+    Returns the variance of the angles between graph edges.
+    """
+
+    layout_dict = graph_layout(ind)
+    angles = []
+
+    for node in nodes:
+      nbrs = neighbors(node)
+      if len(nbrs) >= 2:
+        for nbr1, nbr2 in zip(nbrs, nbrs[1:]):
+          angles.append(calculate_angle(layout_dict[nbr1], layout_dict[nbr2], layout_dict[node]))
+          # tutaj dodac do jakichs temp angles, z nich usunac max i potem dodac reszte do angles?? moze (i jeszcze dodac kat pierwszego z ostatnim)
+
+    return np.var(angles)
+
+  def evaluate(ind):
+    """
+    Returns the fitness of an individual (a graph). It consists of 6 heuristic parameters, that is:
+      1. the number of edge crossings
+      2. the variance of the edge lengths
+      3. the minimal distance of nodes to the nearest edge
+      4. the variance of the inter-node distance
+      5. the minimal distance between nodes
+      6. the variance of the edge angles at every node
+
+    While creating fitness, I specified that I want to minimize the first two parameters and maximize the third one. We want
+    a minimal number of edge crossings. The variance of the edge lengths should be fairly low as well in order for the graph
+    to look nice - if the lengths vary a lot, the graph will be hard to read. The goal of maximizing the third parameter is increasing
+    the distance between nodes and the nearest edge - it should make the graph more readable.
+
+    Later, I decided to add the 4th parameter which is the variance of the inter-node distance. The resulting graphs were
+    already looking quite good but the nodes were often crammed together too much. This parameter will focus on achieving
+    a more uniform distribution of distances between nodes. We will of course want to minimize it.
+
+    5th parameter is quite similar to the 4th parameter (same function computes it). We will want to maximize the minimal distance between nodes
+    so that the nodes aren't crammed together too much.
+
+    6th parameter is very important as well. By minimizing the variance of the edge angles at every node, the graph will become much more readable
+    because the angles will be more uniform.
+    """
+
+    return edge_crossings(ind), edge_length_var(ind), node_edge_dist(ind), node_node_dist(ind)[0], node_node_dist(ind)[1], edge_angle_var(ind) # ordering DOES matter! + normalize??
+
   """
-  Returns the minimum distance between the nodes and the edges.
+  Creates:
+    -fitness that minimizes the first two objectives and maximize the third one
+    -individual that's a simple list of floats (x, y coords of a node)
   """
 
-  layout_dict = graph_layout(ind)
-  dists = []
+  creator.create("FitnessMulti", base.Fitness, weights=(-1.0, -10.0, 10.0, -10.0, 10.0, -0.001)) # weights don't work with some selection operators??
+  creator.create("Individual", list, fitness=creator.FitnessMulti)
 
-  for node, coords in layout_dict.items():
-    # find the nearest edge for each node
-    nearest_edge_distance = min(distance_to_edge(coords, (layout_dict[edge[0]], layout_dict[edge[1]])) for edge in edges)
-    dists.append(nearest_edge_distance)
-
-  return min(dists)
-
-def calculate_angle(nbr1, nbr2, node):
   """
-  Calculates the angle between 3 2d points, node being the center one.
+  Create the initializers for individuals containing random floating point numbers and for a population that contains them.
   """
 
-  ang = math.degrees(math.atan2(nbr2[1]-node[1], nbr2[0]-node[0]) - math.atan2(nbr1[1]-node[1], nbr1[0]-node[0]))
-  return ang + 360 if ang < 0 else ang
+  IND_SIZE = n * 2 # x, y coords of each node
 
-def neighbors(node):
-  """
-  Returns a list of neighbors of a given node.
-  """
+  toolbox = base.Toolbox()
+  toolbox.register("attribute", random.random)
+  toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attribute, n=IND_SIZE)
+  toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
-  nbrs = set()
-  for edge in edges:
-      if node in edge:
-          nbrs.update(edge)
+  # MULTIPROCESSING:
+  import multiprocessing
+  pool = multiprocessing.Pool()
+  toolbox.register("map", pool.map)
 
-  nbrs.remove(node)  # remove the original node from the neighbors
-  return list(nbrs)
+  # TEST:
+  ind1 = toolbox.individual()
+  ind1.fitness.values = evaluate(ind1)
+  print(ind1.fitness)
+  layout = graph_layout(ind1)
+  g = nx.Graph()
+  g.add_nodes_from(nodes)
+  g.add_edges_from(edges)
+  nx.draw(g, pos=layout, with_labels=True)
+  plt.savefig("before.png")
+  plt.close()
 
-def edge_angle_var(ind):
-  """
-  Returns the variance of the angles between graph edges.
-  """
+  # TOOLBOX - OPERATORS:
+  toolbox.register("mate", tools.cxUniform, indpb=0.2) # blend (alpha=0.2 - why? what is even that?), uniform, onepoint, twopoint
+  toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=1, indpb=0.2) # ?
+  toolbox.register("select", tools.selNSGA2, nd="standard") # some Pareto stuff + https://groups.google.com/g/deap-users/c/d9vi86HpypU + need eaMuPlusLambda?
+  toolbox.register("evaluate", evaluate)
 
-  layout_dict = graph_layout(ind)
-  angles = []
+  # MAIN:
+  NGEN = 30
+  MU = 500
+  LAMBDA = 2000
+  CXPB = 0.5 # SWITCH THEM BACK LATER! (or maybe not lol)
+  MUTPB = 0.5
 
-  for node in nodes:
-    nbrs = neighbors(node)
-    if len(nbrs) >= 2:
-      for nbr1, nbr2 in zip(nbrs, nbrs[1:]):
-        angles.append(calculate_angle(layout_dict[nbr1], layout_dict[nbr2], layout_dict[node]))
-        # tutaj dodac do jakichs temp angles, z nich usunac max i potem dodac reszte do angles?? moze (i jeszcze dodac kat pierwszego z ostatnim)
+  # experiment with different orderings of the objectives + maybe run more gens once and that's it I think
 
-  return np.var(angles)
+  pop = toolbox.population(n=MU)
+  hof = tools.ParetoFront()
+  algorithms.eaMuPlusLambda(pop, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN, halloffame=hof, verbose=True);
 
-def evaluate(ind):
-  """
-  Returns the fitness of an individual (a graph). It consists of 6 heuristic parameters, that is:
-    1. the number of edge crossings
-    2. the variance of the edge lengths
-    3. the minimal distance of nodes to the nearest edge
-    4. the variance of the inter-node distance
-    5. the minimal distance between nodes
-    6. the variance of the edge angles at every node
+  # RESULTS:
+  best_individual = tools.selBest(pop, 1)[0]
+  best_layout = graph_layout(best_individual)
+  G = nx.Graph()
+  G.add_nodes_from(nodes)
+  G.add_edges_from(edges)
+  nx.draw(G, pos=best_layout, with_labels=True)
+  plt.savefig("after_selbest_" + key + ".png")
+  print(best_individual.fitness)
+  plt.close()
 
-  While creating fitness, I specified that I want to minimize the first two parameters and maximize the third one. We want
-  a minimal number of edge crossings. The variance of the edge lengths should be fairly low as well in order for the graph
-  to look nice - if the lengths vary a lot, the graph will be hard to read. The goal of maximizing the third parameter is increasing
-  the distance between nodes and the nearest edge - it should make the graph more readable.
+  best_individual = hof.items[0]
+  best_layout = graph_layout(best_individual)
+  nx.draw(G, pos=best_layout, with_labels=True)
+  plt.savefig("after_hof_" + key + ".png")
+  print(best_individual.fitness)
+  plt.close()
 
-  Later, I decided to add the 4th parameter which is the variance of the inter-node distance. The resulting graphs were
-  already looking quite good but the nodes were often crammed together too much. This parameter will focus on achieving
-  a more uniform distribution of distances between nodes. We will of course want to minimize it.
+  nx.draw(G, pos=nx.spring_layout(G), with_labels=True)
+  plt.savefig("after_spring_" + key + ".png")
 
-  5th parameter is quite similar to the 4th parameter (same function computes it). We will want to maximize the minimal distance between nodes
-  so that the nodes aren't crammed together too much.
-
-  6th parameter is very important as well. By minimizing the variance of the edge angles at every node, the graph will become much more readable
-  because the angles will be more uniform.
-  """
-
-  return edge_crossings(ind), edge_length_var(ind), node_edge_dist(ind), node_node_dist(ind)[0], node_node_dist(ind)[1], edge_angle_var(ind) # ordering DOES matter! + normalize??
-
-"""
-Creates:
-  -fitness that minimizes the first two objectives and maximize the third one
-  -individual that's a simple list of floats (x, y coords of a node)
-"""
-
-creator.create("FitnessMulti", base.Fitness, weights=(-1.0, -10.0, 10.0, -10.0, 10.0, -0.001)) # weights don't work with some selection operators??
-creator.create("Individual", list, fitness=creator.FitnessMulti)
-
-"""
-Create the initializers for individuals containing random floating point numbers and for a population that contains them.
-"""
-
-IND_SIZE = n * 2 # x, y coords of each node
-
-toolbox = base.Toolbox()
-toolbox.register("attribute", random.random)
-toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attribute, n=IND_SIZE)
-toolbox.register("population", tools.initRepeat, list, toolbox.individual)
-
-import multiprocessing
-
-pool = multiprocessing.Pool()
-toolbox.register("map", pool.map)
-
-# test
-ind1 = toolbox.individual()
-ind1.fitness.values = evaluate(ind1)
-print(ind1.fitness)
-
-layout = graph_layout(ind1)
-
-g = nx.Graph()
-g.add_nodes_from(nodes)
-g.add_edges_from(edges)
-nx.draw(g, pos=layout, with_labels=True)
-plt.savefig("before.png")
-plt.close()
-
-toolbox.register("mate", tools.cxUniform, indpb=0.2) # blend (alpha=0.2 - why? what is even that?), uniform, onepoint, twopoint
-toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=1, indpb=0.2) # ?
-toolbox.register("select", tools.selNSGA2, nd="standard") # some Pareto stuff + https://groups.google.com/g/deap-users/c/d9vi86HpypU + need eaMuPlusLambda?
-toolbox.register("evaluate", evaluate)
-
-NGEN = 30
-MU = 500
-LAMBDA = 2000
-CXPB = 0.5 # SWITCH THEM BACK LATER! (or maybe not lol)
-MUTPB = 0.5
-
-# experiment with different orderings of the objectives + maybe run more gens once and that's it I think
-
-pop = toolbox.population(n=MU)
-hof = tools.ParetoFront()
-algorithms.eaMuPlusLambda(pop, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN, halloffame=hof, verbose=True);
-
-best_individual = tools.selBest(pop, 1)[0]
-best_layout = graph_layout(best_individual)
-G = nx.Graph()
-G.add_nodes_from(nodes)
-G.add_edges_from(edges)
-nx.draw(G, pos=best_layout, with_labels=True)
-plt.savefig("after_selbest_" + choice + ".png")
-print(best_individual.fitness)
-plt.close()
-
-best_individual = hof.items[0] # check if selBest would work
-nx.draw(G, pos=best_layout, with_labels=True)
-plt.savefig("after_hof_" + choice + ".png")
-print(best_individual.fitness)
-plt.close()
-
-nx.draw(G, pos=nx.spring_layout(G), with_labels=True)
-plt.savefig("after_spring_" + choice + ".png")
-#=============================================================#
+  #=============================================================#

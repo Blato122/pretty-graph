@@ -311,5 +311,4 @@ plt.close()
 
 nx.draw(G, pos=nx.spring_layout(G), with_labels=True)
 plt.savefig("after_spring_" + choice + ".png")
-print(best_individual.fitness)
 #=============================================================#

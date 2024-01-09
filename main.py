@@ -17,15 +17,16 @@ graphs = {
       (0, 10), (0, 11), (0, 12), (0, 13), (0, 14), (0, 15), (0, 16)
   ],
 
-  "B": [ # square 4x4 grid
-      (1, 2), (1, 5), (2, 1), (2, 3), (2, 6),
-      (3, 2), (3, 4), (3, 7), (4, 3), (4, 8),
-      (5, 1), (5, 6), (5, 9), (6, 2), (6, 5), (6, 7), (6, 10),
-      (7, 3), (7, 6), (7, 8), (7, 11), (8, 4), (8, 7), (8, 12),
-      (9, 5), (9, 10), (9, 13), (10, 6), (10, 9), (10, 11), (10, 14),
-      (11, 7), (11, 10), (11, 12), (11, 15), (12, 8), (12, 11), (12, 16),
-      (13, 9), (13, 14), (14, 10), (14, 13), (14, 15),
-      (15, 11), (15, 14), (15, 16), (16, 12), (16, 15)
+  "B": [ # square 3x3 grid
+    (1, 2), (1, 4),
+    (2, 1), (2, 3), (2, 5),
+    (3, 2), (3, 6),
+    (4, 1), (4, 5), (4, 7),
+    (5, 2), (5, 4), (5, 6), (5, 8),
+    (6, 3), (6, 5), (6, 9),
+    (7, 4), (7, 8),
+    (8, 5), (8, 7), (8, 9),
+    (9, 6), (9, 8)
   ],
 
   "C": [ # simple
@@ -47,7 +48,7 @@ graphs = {
   ],
 }
 
-for key, _ in graphs.items():
+for key, _ in reversed(graphs.items()):
   edges = graphs[key]
   nodes = set(node for edge in edges for node in edge)
   n = len(nodes)
@@ -176,8 +177,13 @@ for key, _ in graphs.items():
     Calculates the angle between 3 2d points, node being the center one.
     """
 
-    ang = math.degrees(math.atan2(nbr2[1]-node[1], nbr2[0]-node[0]) - math.atan2(nbr1[1]-node[1], nbr1[0]-node[0]))
-    return ang + 360 if ang < 0 else ang
+    ba = np.array(nbr1) - np.array(node)
+    bc = np.array(nbr2) - np.array(node)
+
+    cosine_angle = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc))
+    angle = np.arccos(cosine_angle)
+
+    return np.degrees(angle)
 
   def neighbors(node):
     """
@@ -195,7 +201,7 @@ for key, _ in graphs.items():
   def edge_angle_var(ind):
     """
     Returns the variance of the angles between graph edges.
-    """
+    """ # changed + idk if that even works...
 
     layout_dict = graph_layout(ind)
     angles = []
@@ -206,10 +212,11 @@ for key, _ in graphs.items():
         for nbr1, nbr2 in zip(nbrs, nbrs[1:]):
           angles.append(calculate_angle(layout_dict[nbr1], layout_dict[nbr2], layout_dict[node]))
           # tutaj dodac do jakichs temp angles, z nich usunac max i potem dodac reszte do angles?? moze (i jeszcze dodac kat pierwszego z ostatnim)
+          # ale to tylko do var, min nie potrzebuje tego
 
-    return np.var(angles)
+    return min(angles)
 
-  def evaluate(ind):
+  def evaluate(ind): # swapped some parameters
     """
     Returns the fitness of an individual (a graph). It consists of 6 heuristic parameters, that is:
       1. the number of edge crossings
@@ -235,7 +242,7 @@ for key, _ in graphs.items():
     because the angles will be more uniform.
     """
 
-    return edge_crossings(ind), edge_length_var(ind), node_edge_dist(ind), node_node_dist(ind)[0], node_node_dist(ind)[1], edge_angle_var(ind) # ordering DOES matter! + normalize??
+    return edge_crossings(ind), node_node_dist(ind)[0], node_node_dist(ind)[1], edge_length_var(ind), node_edge_dist(ind), # edge_angle_var(ind), # ordering DOES matter! + normalize??
 
   """
   Creates:
@@ -243,14 +250,14 @@ for key, _ in graphs.items():
     -individual that's a simple list of floats (x, y coords of a node)
   """
 
-  creator.create("FitnessMulti", base.Fitness, weights=(-1.0, -10.0, 10.0, -10.0, 10.0, -0.001)) # weights don't work with some selection operators??
+  creator.create("FitnessMulti", base.Fitness, weights=(-1.0, -100.0, 100.0, -100.0, 100.0)) # weights don't work with some selection operators??
   creator.create("Individual", list, fitness=creator.FitnessMulti)
 
   """
   Create the initializers for individuals containing random floating point numbers and for a population that contains them.
   """
 
-  IND_SIZE = n * 2 # x, y coords of each node
+  IND_SIZE = n*2 # x, y coords of each node
 
   toolbox = base.Toolbox()
   toolbox.register("attribute", random.random)
@@ -271,23 +278,23 @@ for key, _ in graphs.items():
   g.add_nodes_from(nodes)
   g.add_edges_from(edges)
   nx.draw(g, pos=layout, with_labels=True)
-  plt.savefig("before.png")
+  plt.savefig("before_" + key + ".png")
   plt.close()
 
   # TOOLBOX - OPERATORS:
+  # manipulating crossover and mutation operators / parameters doesn't have that much impact
   toolbox.register("mate", tools.cxUniform, indpb=0.2) # blend (alpha=0.2 - why? what is even that?), uniform, onepoint, twopoint
   toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=1, indpb=0.2) # ?
   toolbox.register("select", tools.selNSGA2, nd="standard") # some Pareto stuff + https://groups.google.com/g/deap-users/c/d9vi86HpypU + need eaMuPlusLambda?
+  # toolbox.register("select", tools.selTournament, tournsize=3)
   toolbox.register("evaluate", evaluate)
 
   # MAIN:
-  NGEN = 30
-  MU = 500
-  LAMBDA = 2000
-  CXPB = 0.5 # SWITCH THEM BACK LATER! (or maybe not lol)
-  MUTPB = 0.5
-
-  # experiment with different orderings of the objectives + maybe run more gens once and that's it I think
+  NGEN = 2000
+  MU = 100
+  LAMBDA = 500
+  CXPB = 0.2
+  MUTPB = 0.7
 
   pop = toolbox.population(n=MU)
   hof = tools.ParetoFront()
@@ -313,5 +320,6 @@ for key, _ in graphs.items():
 
   nx.draw(G, pos=nx.spring_layout(G), with_labels=True)
   plt.savefig("after_spring_" + key + ".png")
+  plt.close()
 
   #=============================================================#

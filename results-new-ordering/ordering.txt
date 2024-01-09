@@ -1,0 +1,1 @@
+return edge_crossings(ind), edge_angle_var(ind), node_node_dist(ind)[0], node_edge_dist(ind), node_node_dist(ind)[1], edge_length_var(ind) # ordering DOES matter! + normalize??

@@ -309,7 +309,7 @@ for key, value in reversed(graphs.items()): # functions and os.makedirs() in tha
   toolbox.register("evaluate", evaluate)
 
   # MAIN:
-  NGEN = 10000
+  NGEN = 8000
   MU = 15
   LAMBDA = 0 # 0 -> eaSimple, not 0 -> eaMuPlusLambda 
   CXPB = 0.2

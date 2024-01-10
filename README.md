@@ -83,6 +83,7 @@ https://en.wikipedia.org/wiki/Tur%C3%A1n's_brick_factory_problem
 https://bryceboe.com/2006/10/23/line-segment-intersection-algorithm/
 https://tecfa.unige.ch/perso/yvan/GeneticGraph/index.htm
 https://stackoverflow.com/a/1076835/22799795
+
 https://www.emis.de/journals/DM/v92/art5.pdf
 
 To do (?):

@@ -31,6 +31,7 @@ Description in Polish:
       3. minimalizacje wariancji odleglosci miedzy wierzcholkami
       4. maksymalizacje minimalnej odleglosci miedzy wierzcholkami
       5. maksymalizacje minimalnego kata miedzy krawedziami wychodzacymi z danego wierzcholka
+    
     Wyniki nie sa idealne, ale poprawa wzgledem samej minimalizacji przeciec krawedzi jest zauwazalna.
 
     Dodatkowo, poniewaz liczba krawedzi jest podana jako pierwszy parametr, jest ona najwazniejszym parametrem, wiec

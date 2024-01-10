@@ -12,6 +12,16 @@ Creating a graph to produce a user-friendly representation of.
 It is only necessary to specify the edges of a graph.
 """
 graphs = {
+  "X": [ # triangular graph with 8 nodes
+    (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8),
+    (2, 3), (2, 4), (2, 5), (2, 6), (2, 7), (2, 8),
+    (3, 4), (3, 5), (3, 6), (3, 7), (3, 8),
+    (4, 5), (4, 6), (4, 7), (4, 8),
+    (5, 6), (5, 7), (5, 8),
+    (6, 7), (6, 8),
+    (7, 8)
+  ],
+
   "A": [ # star graph
       (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7), (0, 8), (0, 9),
       (0, 10), (0, 11), (0, 12), (0, 13), (0, 14), (0, 15), (0, 16)
@@ -46,10 +56,17 @@ graphs = {
       (2, 4), (2, 5), (2, 6), (2, 7), (2, 8), (2, 9), (2, 10),
       (3, 4), (3, 5), (3, 6), (3, 7), (3, 8), (3, 9), (3, 10),
   ],
+
+  "F": [ # random graph with 25 nodes and 30 edges by chat gpt
+    (1, 5), (1, 10), (1, 12), (1, 14), (1, 17), (1, 19), (2, 3), (2, 6),
+    (2, 7), (2, 11), (2, 13), (2, 21), (3, 6), (3, 8), (3, 14), (4, 5),
+    (4, 8), (4, 10), (4, 11), (4, 15), (5, 9), (5, 12), (5, 20), (6, 8),
+    (6, 9), (7, 9), (7, 18), (7, 20), (8, 19)
+  ]
 }
 
 for key, _ in reversed(graphs.items()):
-  edges = graphs[key]
+  edges = graphs[key] # value... xd
   nodes = set(node for edge in edges for node in edge)
   n = len(nodes)
 
@@ -172,7 +189,7 @@ for key, _ in reversed(graphs.items()):
 
     return min(dists)
 
-  def calculate_angle(nbr1, nbr2, node):
+  def calculate_angle(nbr1, nbr2, node): # fine I think
     """
     Calculates the angle between 3 2d points, node being the center one.
     """
@@ -185,7 +202,7 @@ for key, _ in reversed(graphs.items()):
 
     return np.degrees(angle)
 
-  def neighbors(node):
+  def neighbors(node): # ok
     """
     Returns a list of neighbors of a given node.
     """
@@ -209,8 +226,11 @@ for key, _ in reversed(graphs.items()):
     for node in nodes:
       nbrs = neighbors(node)
       if len(nbrs) >= 2:
-        for nbr1, nbr2 in zip(nbrs, nbrs[1:]):
-          angles.append(calculate_angle(layout_dict[nbr1], layout_dict[nbr2], layout_dict[node]))
+        nbrs2 = nbrs[1:] + [nbrs[0]] # !
+        for nbr1, nbr2 in zip(nbrs, nbrs2):
+          angle = calculate_angle(layout_dict[nbr1], layout_dict[nbr2], layout_dict[node])
+          angles.append(angle)
+          # print(int(angle), nbr1, node, nbr2)
           # tutaj dodac do jakichs temp angles, z nich usunac max i potem dodac reszte do angles?? moze (i jeszcze dodac kat pierwszego z ostatnim)
           # ale to tylko do var, min nie potrzebuje tego
 
@@ -242,7 +262,8 @@ for key, _ in reversed(graphs.items()):
     because the angles will be more uniform.
     """
 
-    return edge_crossings(ind), node_node_dist(ind)[0], node_node_dist(ind)[1], edge_length_var(ind), node_edge_dist(ind), # edge_angle_var(ind), # ordering DOES matter! + normalize??
+    # print(-edge_crossings(ind), node_node_dist(ind)[0], node_node_dist(ind)[1], edge_length_var(ind), node_edge_dist(ind), edge_angle_var(ind))
+    return -edge_crossings(ind), -10*node_node_dist(ind)[0]+10*node_node_dist(ind)[1]-10*edge_length_var(ind)+10*node_edge_dist(ind)+5*edge_angle_var(ind), # normalize
 
   """
   Creates:
@@ -250,7 +271,7 @@ for key, _ in reversed(graphs.items()):
     -individual that's a simple list of floats (x, y coords of a node)
   """
 
-  creator.create("FitnessMulti", base.Fitness, weights=(-1.0, -100.0, 100.0, -100.0, 100.0)) # weights don't work with some selection operators??
+  creator.create("FitnessMulti", base.Fitness, weights=(1.0, 1.0))
   creator.create("Individual", list, fitness=creator.FitnessMulti)
 
   """
@@ -285,21 +306,26 @@ for key, _ in reversed(graphs.items()):
   # manipulating crossover and mutation operators / parameters doesn't have that much impact
   toolbox.register("mate", tools.cxUniform, indpb=0.2) # blend (alpha=0.2 - why? what is even that?), uniform, onepoint, twopoint
   toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=1, indpb=0.2) # ?
-  toolbox.register("select", tools.selNSGA2, nd="standard") # some Pareto stuff + https://groups.google.com/g/deap-users/c/d9vi86HpypU + need eaMuPlusLambda?
-  # toolbox.register("select", tools.selTournament, tournsize=3)
+  # toolbox.register("select", tools.selNSGA2, nd="standard") # some Pareto stuff + https://groups.google.com/g/deap-users/c/d9vi86HpypU + need eaMuPlusLambda?
+  toolbox.register("select", tools.selTournament, tournsize=5) # back to 3 later?
   toolbox.register("evaluate", evaluate)
 
   # MAIN:
-  NGEN = 2000
-  MU = 100
-  LAMBDA = 500
+  NGEN = 8000
+  MU = 15
+  # LAMBDA = 15
   CXPB = 0.2
   MUTPB = 0.7 
-  # mail - ask if ok
 
   pop = toolbox.population(n=MU)
   hof = tools.ParetoFront()
-  algorithms.eaMuPlusLambda(pop, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN, halloffame=hof, verbose=True);
+  algorithms.eaSimple(pop, toolbox, CXPB, MUTPB, NGEN, halloffame=hof, verbose=True);
+  # algorithms.eaMuPlusLambda(pop, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN, halloffame=hof, verbose=True);
+
+  # kolejne testy:
+  # tournsize inne?
+  # na koncu, moze troche zmodyfikowac wagi
+  # inni niech wyprobuja inne mate, mutate operatory
 
   # RESULTS:
   best_individual = tools.selBest(pop, 1)[0]

@@ -1,0 +1,19 @@
+  # TOOLBOX - OPERATORS:
+  # manipulating crossover and mutation operators / parameters doesn't have that much impact
+  toolbox.register("mate", tools.cxUniform, indpb=0.2) # blend (alpha=0.2 - why? what is even that?), uniform, onepoint, twopoint
+  toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=1, indpb=0.2) # ?
+  toolbox.register("select", tools.selNSGA2, nd="standard") # some Pareto stuff + https://groups.google.com/g/deap-users/c/d9vi86HpypU + need eaMuPlusLambda?
+  # toolbox.register("select", tools.selTournament, tournsize=3)
+  toolbox.register("evaluate", evaluate)
+
+  # MAIN:
+  NGEN = 5000
+  MU = 5
+  LAMBDA = 15
+  CXPB = 0.2
+  MUTPB = 0.7 
+
+  pop = toolbox.population(n=MU)
+  hof = tools.ParetoFront()
+  # algorithms.eaSimple(pop, toolbox, CXPB, MUTPB, NGEN, halloffame=hof, verbose=True);
+  algorithms.eaMuPlusLambda(pop, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN, halloffame=hof, verbose=True);

@@ -14,14 +14,16 @@ Graphs to produce a user-friendly representation of.
 It is only necessary to specify the edges of a graph.
 """
 graphs = {
-  "triangle8": [ # triangular graph with 8 nodes
-    (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8),
-    (2, 3), (2, 4), (2, 5), (2, 6), (2, 7), (2, 8),
-    (3, 4), (3, 5), (3, 6), (3, 7), (3, 8),
-    (4, 5), (4, 6), (4, 7), (4, 8),
-    (5, 6), (5, 7), (5, 8),
-    (6, 7), (6, 8),
-    (7, 8)
+  "triangle10": [ # triangular graph with 10 nodes
+    (1, 2), (1, 3),
+    (2, 3), (2, 4), (2, 5),
+    (3, 5), (3, 6),
+    (4, 5), (4, 7), (4, 8),
+    (5, 6), (5, 8), (5, 9),
+    (6, 9), (6, 10),
+    (7, 8),
+    (8, 9),
+    (9, 10)
   ],
 
   "star16": [ # star graph
@@ -141,6 +143,7 @@ for key, value in reversed(graphs.items()): # functions and os.makedirs() in tha
 
     return np.var(edge_lengths)
 
+  # try without that
   def node_node_dist(ind):
     """
     Returns the variance of the distances between nodes and
@@ -264,7 +267,7 @@ for key, value in reversed(graphs.items()): # functions and os.makedirs() in tha
     """
 
     # print(-edge_crossings(ind), node_node_dist(ind)[0], node_node_dist(ind)[1], edge_length_var(ind), node_edge_dist(ind), edge_angle_var(ind))
-    return -edge_crossings(ind), -10*node_node_dist(ind)[0]+10*node_node_dist(ind)[1]-10*edge_length_var(ind)+10*node_edge_dist(ind)+5*edge_angle_min(ind), # normalize by assigning weights
+    return -edge_crossings(ind), -node_node_dist(ind)[0]+node_node_dist(ind)[1]-edge_length_var(ind)+node_edge_dist(ind)+edge_angle_min(ind), # normalize by assigning weights
 
   """
   Creates:
@@ -304,62 +307,45 @@ for key, value in reversed(graphs.items()): # functions and os.makedirs() in tha
   toolbox.register("mate", tools.cxUniform, indpb=0.2) # blend (alpha=0.2 - why? what is even that?), uniform, onepoint, twopoint
   toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=1, indpb=0.2) # ?
   # toolbox.register("select", tools.selNSGA2, nd="standard") # needs eaMuPlusLambda?
-  t = 5
-  toolbox.register("select", tools.selTournament, tournsize=t) # back to 3 later?
+  t = 3
+  toolbox.register("select", tools.selTournament, tournsize=t)
   toolbox.register("evaluate", evaluate)
 
   # MAIN:
-  NGEN = 8000
+  NGEN = 5000
   MU = 15
   LAMBDA = 0 # 0 -> eaSimple, not 0 -> eaMuPlusLambda 
   CXPB = 0.2
   MUTPB = 0.7 
 
   pop = toolbox.population(n=MU)
-  hof = tools.ParetoFront()
+  # hof = tools.ParetoFront()
+  hof = tools.HallOfFame(1)
   algorithms.eaSimple(pop, toolbox, CXPB, MUTPB, NGEN, halloffame=hof, verbose=True);
   # algorithms.eaMuPlusLambda(pop, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN, halloffame=hof, verbose=True);
-
-  # kolejne testy:
-  # tournsize inne?
-  # na koncu, moze troche zmodyfikowac wagi
-  # pozostali moze niech wyprobuja inne mate, mutate operatory
 
   # RESULTS:
   # folder results-ngen8000-x-y-z-...
   subfolder_name = "NEW-RESULTS/results_NGEN-" + str(NGEN) + "_MU-" + str(MU) + ("_LAMBDA-" + str(LAMBDA) + "_CXPB-" if LAMBDA != 0 else "_CXPB-") \
-  + str(CXPB) + "_MUTPB-" + str(MUTPB) + ("_TOURNSIZE-" + str(t) + "_CXPB-" if t != 0 else "_NSGA2")
+  + str(CXPB) + "_MUTPB-" + str(MUTPB) + ("_TOURNSIZE-" + str(t) if t != 0 else "_NSGA2")
   # if os.path.exists(subfolder_name):
   #   shutil.rmtree(subfolder_name)
   os.makedirs(os.path.join(subfolder_name), exist_ok=True)
-  os.makedirs(os.path.join(subfolder_name + "/selbest/"), exist_ok=True)
   os.makedirs(os.path.join(subfolder_name + "/hof/"), exist_ok=True)
   os.makedirs(os.path.join(subfolder_name + "/nx/"), exist_ok=True)
 
-
-  # subfolder selbest
-  best_individual = tools.selBest(pop, 1)[0]
-  best_layout = graph_layout(best_individual)
   G = nx.Graph()
   G.add_nodes_from(nodes)
   G.add_edges_from(edges)
-  nx.draw(G, pos=best_layout, with_labels=True, node_size=100, font_size=8)
-  plt.text(0, 0, best_individual.fitness)
-  plt.savefig(subfolder_name + "/selbest/" + key + ".png")
-  print(best_individual.fitness)
-  plt.close()
 
   # subfolder hof
-  for i in range(0, 3):
-      if i < len(hof.items):
-        best_individual = hof.items[i]
-        best_layout = graph_layout(best_individual)
-        nx.draw(G, pos=best_layout, with_labels=True, node_size=100, font_size=8)
-        plt.text(0, 0, best_individual.fitness)
-        plt.savefig(subfolder_name + "/hof/hof_" + str(i) + "_" + key + ".png")
-        print(best_individual.fitness)
-        plt.close()
-
+  best_individual = hof.items[0]
+  best_layout = graph_layout(best_individual)
+  nx.draw(G, pos=best_layout, with_labels=True, node_size=100, font_size=8)
+  plt.text(0, 0, best_individual.fitness)
+  plt.savefig(subfolder_name + "/hof/" + key + ".png")
+  print(best_individual.fitness)
+  plt.close()
 
   # subfolder nx
   nx.draw(G, pos=nx.spring_layout(G), with_labels=True, node_size=100, font_size=8)

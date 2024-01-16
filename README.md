@@ -71,11 +71,13 @@ Description in Polish:
 
     Wyniki dla innych konfiguracji umieszczone sa w folderach "OLD-RESULTS" i "NEW-RESULTS" oraz "NEW-NEW-RESULTS". W nazwie folderu sa wartosci kolejnych parametrow dla okreslonej konfiguracji. W srodku sa grafiki z rozlozeniami roznych grafow po wykonaniu algorytmu. Wyniki sprzed wykonania algorytmu (losowe rozlozenia grafu) i wyniki z gotowej biblioteki (NetworkX) dla porownania sa dostepne w folderach "random-layouts" i "nx-layouts".
 
-    Zdajemy sobie sprawe z tego, ze mozliwych kombinacji jest o wiele wiecej i ze pewnie nie osiagnelismy optimum. Czas wykonania algorytmu dla wszystkich grafow jest jednak na tyle dlugi, ze trzeba bylo sie w jakis sposob ograniczyc. Dlatego tez eksperymentowalismy glownie z roznymi rozmiarami populacji / iloscia generacji / funkcja dopasowania / pp. mutacji i krzyzowania, a operatory mutacji i krzyzowania dobralismy na samym poczatku i zostawili potem bez zmian.
+    Zdajemy sobie sprawe z tego, ze mozliwych kombinacji jest o wiele wiecej i ze pewnie nie osiagnelismy optimum. Czas wykonania algorytmu dla wszystkich grafow jest jednak na tyle dlugi, ze trzeba bylo sie w jakis sposob ograniczyc. Dlatego tez eksperymentowalismy glownie z roznymi rozmiarami populacji / iloscia generacji / funkcja dopasowania / pp. mutacji i krzyzowania, a operatory mutacji i krzyzowania dobralismy na samym poczatku i zostawili potem bez zmian. Drobnym problemem byl rowniez sam wybor przetestowanych juz wczesniej parametrow. Czasami trudno bylo stwierdzic ktore wyniki sa wlasciwie lepsze i w ktora strone powinnismy podazac. Trudno w koncu jednoznacznie ocenic "ladnosc" grafu. Ostatecznie jednak udalo nam sie znalezc zbior parametrow i operatorow, dla ktorego wyniki sa zadowalajace.
 
 7. Wnioski:
 
-    Podsumowujac, program radzi sobie dobrze. Zalezy to oczywiscie od grafu, np. dla grafu "star" radzi sobie
+    Podsumowujac, program radzi sobie dobrze. Ze wzgledu na czas wykonania, testowalismy go na grafach malych lub srednich (do kilkudziesieciu krawedzi). Dla grafow bardzo prostych, typu "square3x3", "simple" lub "triangle", wyniki sa perfekcyjne, lecz nie jest to zaden wyczyn - czlowiek z kartka i dlugopisem w reku poradzilby sobie rownie dobrze. Biblioteka NetworkX rowniez rozwiazuje te problemy bezblednie (chociaz akurat dla "square3x3" wyniki sa o dziwo bardzo slabe). Ciekawsza jest grupa grafow troche wiekszych i bardziej skomplikowanych.
+    
+    Zalezy to oczywiscie od grafu, np. dla grafu "star" radzi sobie
     dosc slabo - nie ma przeciec, ale graf nie wyglada ladnie. To jest jednak prosty przypadek, dla ktorego latwo znalezc
     dobre rozwiazanie, korzystajac np. z biblioteki NetworkX i spring_layout() lub nawet rysujac graf samemu. typu. Dla grafow 
     bardzo latwych, typu "simple" lub "square3x3", radzi sobie bardzo dobrze, ale dobrze radzi sobie tez NetworkX i czlowiek 

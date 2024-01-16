@@ -17,7 +17,6 @@ Description in Polish:
 
     Dobor operatorow nie mial duzego znaczenia. Jesli chodzi o operatory krzyzowania, wszystkie cztery (cxUniform, cxOnePoint, cxTwoPoint, cxBlend) sprawdzaly sie dosc dobrze i trudno mi powiedziec, ktory byl najlepszy. Ostatecznie postawilismy na cxUniform. Jesli chodzi o mutacje, wybralismy mutGaussian z "domyslnymi" parametrami, czyli: mu=0, sigma=1, indpb=0.2. Wydaje nam sie, ze to dosc popularny wybor, ktory rowniez dla tego rozwiazania wydawal mi sie sensowny. Poza tym, z naszych obserwacji wynika, ze to funkcja dopasowania, metoda selekcji, wielkosc populacji i ilosc pokolen mialy najwieksze znaczenie dla wynikow. 
 
-            ??? czy na odwrot lepiej
     Parametry, czyli prawdopodobienstwo mutacji i prawdopodobienstwo krzyzowania, rowniez nie mialy krytycznego znaczenia dla dzialania algorytmu. Wydaje nam sie, ze najlepsze wyniki osiaga wysokie pp. mutacji i niskie pp. krzyzowania (np. 0.7 i 0.2). Zgadzaloby sie to z dwoma artykulami, w ktorych autorzy podobnych algorytmow rowniez mieli wysokie pp. mutacji i niskie pp. krzyzowania (jeden z nich: https://www.emis.de/journals/DM/v92/art5.pdf, drugi niestety zgubilismy). Sprawdzalismy rowniez m.in. wartosci 0.2 i 0.7 oraz 0.5 i 0.5 i wydaje nam sie, ze byly one nieco gorszym wyborem niz 0.7 i 0.2, ale wyniki nadal byly przyzwoite. Po wiekszej ilosci testow, zauwazylismy, ze wysokie pp. mutacji i niskie pp. krzyzowania prowadzi do najlepszych wynikow, ale tylko czasem, z kolei przy ustawieniu tych pp. na odwrot, dostajemy troche gorsze wyniki, ale bardziej spojne na przestrzeni wielu uruchomien programu.
 
 4. Funkcja dopasowania:
@@ -32,7 +31,7 @@ Description in Polish:
       4. maksymalizacje minimalnej odleglosci miedzy wierzcholkami
       5. maksymalizacje minimalnego kata miedzy krawedziami wychodzacymi z danego wierzcholka
     
-    Wyniki nie sa idealne, ale poprawa wzgledem samej minimalizacji przeciec krawedzi jest zauwazalna.
+    Wyniki sa, naszym zdaniem, calkiem dobre i poprawa wzgledem samej minimalizacji przeciec krawedzi jest zauwazalna.
 
     Dodatkowo, poniewaz liczba krawedzi jest podana jako pierwszy parametr, jest ona najwazniejszym parametrem, wiec
     dla kazdego obliczonego rozlozenia grafu jest ona minimalna. Drugi parametr dotyczy juz wygladu grafu i zawiera sume wazona pozostalych atrybutow, ktora nalezy zmaksymalizowac. Parametry, ktore nalezy zminimalizowac maja ujemna wage, a te, ktore nalezy zmaksymalizowac - dodatnia. Probowalismy wczesniej optymalizacji 6 osobnych parametrow, ale dawalo to o wiele gorsze efekty.
@@ -40,30 +39,35 @@ Description in Polish:
 3. Metoda selekcji:
 
     Testowalismy dwie metody selekcji: selTournament i selNSGA2. Poczatkowo, korzystalismy z selNSGA2 poniewaz ma byc ona
-    bardziej odpowiednia dla optymalizacji wieloparametrowej, ale po zmianie wprowadzonej w poprzednim punkcie, wrocilismy do selekcji turniejowej. Majac tylko dwa parametry, z czego pierwszy przyjmuje tylko wartosci calkowite, selekcja wyglada nastepujaco (zrodlo: https://groups.google.com/g/deap-users/c/d9vi86HpypU). Porownywane sa wartosci w dla pierwszego parametru. Wybierany jest osobnik z lepsza wartoscia. Jesli wartosci sa takie same, przechodzimy do drugiej (juz przyjmujacej wielkosci rzeczywiste) wartosci i na jej podstawie wybieramy osobnika. Jest to dokladnie cos, czego chcemy. Jako priorytet stawiamy minimalna liczbe przeciec krawedzi. Po jakims czasie zostanie ona zminimalizowana i bedzie ona rowna dla wszystkich/wiekszosci osobnikow. Wtedy przyjdzie czas na optymalizacje grafu pod wzgledem wygladu. Testowalismy k=3 oraz k=5, wyniki sa podobne, zostalismy przy k=3.
-
-       **pareto dominance - juz nie**
+    bardziej odpowiednia dla optymalizacji wieloparametrowej, ale po zmianie wprowadzonej w poprzednim punkcie (2 zamiast 6 paremetrow), wrocilismy do selekcji turniejowej. Majac tylko dwa parametry, z czego pierwszy przyjmuje tylko wartosci calkowite, selekcja wyglada nastepujaco (zrodlo: https://groups.google.com/g/deap-users/c/d9vi86HpypU). Porownywane sa wartosci w dla pierwszego parametru. Wybierany jest osobnik z lepsza wartoscia. Jesli wartosci sa takie same, przechodzimy do drugiej (juz przyjmujacej wielkosci rzeczywiste) wartosci i na jej podstawie wybieramy osobnika. Jest to dokladnie cos, czego chcemy. Jako priorytet stawiamy minimalna liczbe przeciec krawedzi. Po jakims czasie zostanie ona zminimalizowana i bedzie ona rowna dla wszystkich/wiekszosci osobnikow. Wtedy przyjdzie czas na optymalizacje grafu pod wzgledem wygladu. Testowalismy k=3 oraz k=5, wyniki sa podobne, zostalismy przy k=3.
 
 5. Warunek stopu:
 
-    Warunkiem stopu jest po prostu wykonanie zadanej liczby generacji. Gdyby w gory wiedziec, jaka jest minimalna liczba przeciec krawedzi w grafie, mozna by ustalic warunek stopu jako osiagniecie tej wartosci. Nie zawsze jednak mamy ta informacje, poza tym, oprocz minimalnej liczby przeciec, graf musi byc czytelny (a dla tego kryterium bardzo trudno wymyslic wartosc, ktora chcemy osiagnac). Stad moj wybor. Po odpowiedniej liczbie generacji, algorytm, dla grafow na ktorych go testowalem, zawsze osiaga minimalna liczbe krawedzi (to jest zreszta najwazniejsze kryterium w dopasowaniu).
+    Warunkiem stopu jest po prostu wykonanie zadanej liczby generacji. Gdyby z gory wiedziec, jaka jest minimalna liczba przeciec krawedzi w grafie, mozna by ustalic warunek stopu jako osiagniecie tej wartosci. Nie zawsze jednak mamy ta informacje, poza tym, oprocz minimalnej liczby przeciec, graf musi byc czytelny (a dla tego kryterium bardzo trudno wymyslic wartosc, ktora chcemy osiagnac). Stad moj wybor. Po odpowiedniej liczbie generacji, algorytm, dla grafow na ktorych go testowalismy, zawsze osiaga minimalna liczbe krawedzi (to jest zreszta najwazniejsze kryterium w dopasowaniu).
 
 6. Eksperymenty:
 
     Wykonalismy bardzo wiele eksperymentow i najlepsze wyniki uzyskuje przy nastepujacej konfiguracji:
-    ..
-    ...
-    ..
-       **UZUPELNIC ! ! !**
+    * liczba generacji (NGEN) = 5000
+    * wielkosc populacji (MU) = 15
+    * pp. krzyzowania (CXPB) = 0.2
+    * pp. mutacji (MUTPB) = 0.7
+    * operator krzyzowania: cxUniform, indpb=0.2
+    * operator mutacji: mutGaussian, mu=0, sigma=1, indpb=0.2
+    * metoda selekcji: selTournament(tournsize=3)
+    * wagi w funkcji dopasowania:
+        * wariancja dlugosci krawedzi: 
+        * maksymalizacje minimalnej dlugosci wierzcholka od krawedzi POPRAWIC TO!
+        * wariancja odleglosci miedzy wierzcholkami:
+        * minimalna odleglosci miedzy wierzcholkami:
+        * minimalny kat miedzy krawedziami wychodzacymi z danego wierzcholka:
 
-    Ogolnie, algorytm lepiej sobie radzi przy malej populacji i duzej liczbie generacji.
 
-       **Wyniki brane sa z wersji HallOfFame nazywanej ParetoFront. Zawiera ona wszystkie "non-dominated individuals", ktore** **kiedykolwiek sie pojawily w populacji. Niezdominowany osobnik to taki osobnik,**
-       **??? juz nie**
+    Ogolnie, algorytm lepiej sobie radzi przy malej populacji i duzej liczbie generacji. Bardzo duze znaczenie mialo rowniez dobranie
 
-    Jako wynik ostateczny, biore pierwszego osobnika z HallOfFame, czyli najlepszego osobnika z wszystkich generacji.
+    Jako wynik ostateczny, bierzemy pierwszego osobnika z HallOfFame, czyli najlepszego osobnika z wszystkich generacji.
 
-    Wyniki dla innych konfiguracji umieszczone sa w folderach. W nazwie folderu sa wartosci kolejnych parametrow dla okreslonej konfiguracji. W srodku sa grafiki z rozlozeniami roznych grafow, przed i po wykonaniu algorytmu oraz wyniki z gotowej biblioteki (NetworkX) dla porownania.
+    Wyniki dla innych konfiguracji umieszczone sa w folderach "OLD-RESULTS" i "NEW-RESULTS". W nazwie folderu sa wartosci kolejnych parametrow dla okreslonej konfiguracji. W srodku sa grafiki z rozlozeniami roznych grafow po wykonaniu algorytmu. Wyniki sprzed wykonania algorytmu (losowe rozlozenia grafu) i wyniki z gotowej biblioteki (NetworkX) dla porownania sa dostepne w folderach "random-layouts" i "nx-layouts".
 
     Zdajemy sobie sprawe z tego, ze mozliwych kombinacji jest o wiele wiecej i ze pewnie nie osiagnelismy optimum. Czas wykonania algorytmu dla wszystkich grafow jest jednak na tyle dlugi, ze trzeba bylo sie w jakis sposob ograniczyc. Dlatego tez eksperymentowalismy glownie z roznymi rozmiarami populacji / iloscia generacji / funkcja dopasowania / pp. mutacji i krzyzowania, a operatory mutacji i krzyzowania dobralismy na samym poczatku i zostawili potem bez zmian.
 

@@ -1,1 +1,2 @@
 nx nie tworzyc dla kazdego jednego wyniku, zrobic ogolny folder, jak dla test-results
+pareto front, non-dominated individuals

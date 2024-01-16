@@ -2,22 +2,36 @@ import random
 from deap import base, creator, tools, algorithms
 import networkx as nx
 import numpy as np
-import math
 import matplotlib.pyplot as plt
+import multiprocessing
+import os
+import shutil
 
 random.seed(42)
 
 """
-Creating a graph to produce a user-friendly representation of.
+Graphs to produce a user-friendly representation of.
 It is only necessary to specify the edges of a graph.
 """
 graphs = {
-  "A": [ # star graph
+  "triangle10": [ # triangular graph with 10 nodes
+    (1, 2), (1, 3),
+    (2, 3), (2, 4), (2, 5),
+    (3, 5), (3, 6),
+    (4, 5), (4, 7), (4, 8),
+    (5, 6), (5, 8), (5, 9),
+    (6, 9), (6, 10),
+    (7, 8),
+    (8, 9),
+    (9, 10)
+  ],
+
+  "star16": [ # star graph
       (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7), (0, 8), (0, 9),
       (0, 10), (0, 11), (0, 12), (0, 13), (0, 14), (0, 15), (0, 16)
   ],
 
-  "B": [ # square 3x3 grid
+  "square3x3": [ # square 3x3 grid
     (1, 2), (1, 4),
     (2, 1), (2, 3), (2, 5),
     (3, 2), (3, 6),
@@ -29,27 +43,35 @@ graphs = {
     (9, 6), (9, 8)
   ],
 
-  "C": [ # simple
+  "simple": [ # simple
       (0, 1), (0, 2), (0, 3), (1, 2), (1, 4), (2, 3), (3, 4), (4, 0)
   ],
 
-  "D": [ # not so simple
+  "medium": [ # not so simple
       (4, 13), (13, 9), (9, 5), (9, 11), (11, 6), (6, 0),
       (6, 2), (0, 2), (2, 17), (17, 10), (17, 7), (7, 16),
       (7, 15), (10, 15), (0, 15), (15, 3), (17, 14), (3, 14),
       (1, 3), (1, 14), (1, 12), (1, 8), (12, 13), (8, 13)
   ],
 
-  "E": [ # K 4,7 graph (18 edge crossings)
+  "K47": [ # K 4,7 graph (18 edge crossings)
       (0, 4), (0, 5), (0, 6), (0, 7), (0, 8), (0, 9), (0, 10),
       (1, 4), (1, 5), (1, 6), (1, 7), (1, 8), (1, 9), (1, 10),
       (2, 4), (2, 5), (2, 6), (2, 7), (2, 8), (2, 9), (2, 10),
       (3, 4), (3, 5), (3, 6), (3, 7), (3, 8), (3, 9), (3, 10),
   ],
+
+  "chatgpt": [ # random graph with 25 nodes and 30 edges by chat gpt
+    (1, 5), (1, 10), (1, 12), (1, 14), (1, 17), (1, 19), (2, 3), (2, 6),
+    (2, 7), (2, 11), (2, 13), (2, 21), (3, 6), (3, 8), (3, 14), (4, 5),
+    (4, 8), (4, 10), (4, 11), (4, 15), (5, 9), (5, 12), (5, 20), (6, 8),
+    (6, 9), (7, 9), (7, 18), (7, 20), (8, 19)
+  ]
 }
 
-for key, _ in reversed(graphs.items()):
-  edges = graphs[key]
+for key, value in reversed(graphs.items()): # functions and os.makedirs() in that loop??
+  print(key)
+  edges = value
   nodes = set(node for edge in edges for node in edge)
   n = len(nodes)
 
@@ -71,7 +93,7 @@ for key, _ in reversed(graphs.items()):
 
   def intersect(x1, y1, x2, y2, x3, y3, x4, y4):
     """
-    Return true if line segments 12 and 34 intersect.
+    Returns true if line segments 12 and 34 intersect.
     """
     return _intersect((x1, y1), (x2, y2), (x3, y3), (x4, y4))
 
@@ -138,7 +160,7 @@ for key, _ in reversed(graphs.items()):
           dist = ((x1-x2)**2 + (y1-y2)**2)**0.5
           dists.append(dist)
 
-    return np.var(dists), min(dists) # idk if both are necessary but I think so, they are responsible for different things
+    return np.var(dists), min(dists)
 
   def distance_to_edge(node_coords, edge_coords):
       """
@@ -198,10 +220,10 @@ for key, _ in reversed(graphs.items()):
     nbrs.remove(node)  # remove the original node from the neighbors
     return list(nbrs)
 
-  def edge_angle_var(ind):
+  def edge_angle_min(ind):
     """
-    Returns the variance of the angles between graph edges.
-    """ # changed + idk if that even works...
+    Returns the minimum angle between graph edges.
+    """
 
     layout_dict = graph_layout(ind)
     angles = []
@@ -209,14 +231,16 @@ for key, _ in reversed(graphs.items()):
     for node in nodes:
       nbrs = neighbors(node)
       if len(nbrs) >= 2:
-        for nbr1, nbr2 in zip(nbrs, nbrs[1:]):
-          angles.append(calculate_angle(layout_dict[nbr1], layout_dict[nbr2], layout_dict[node]))
-          # tutaj dodac do jakichs temp angles, z nich usunac max i potem dodac reszte do angles?? moze (i jeszcze dodac kat pierwszego z ostatnim)
-          # ale to tylko do var, min nie potrzebuje tego
+        nbrs2 = nbrs[1:] + [nbrs[0]] # !
+        for nbr1, nbr2 in zip(nbrs, nbrs2):
+          angle = calculate_angle(layout_dict[nbr1], layout_dict[nbr2], layout_dict[node])
+          angles.append(angle)
+          # print(int(angle), nbr1, node, nbr2)
 
     return min(angles)
 
-  def evaluate(ind): # swapped some parameters
+  weights = [1, 100, 100, 1, 100]
+  def evaluate(ind):
     """
     Returns the fitness of an individual (a graph). It consists of 6 heuristic parameters, that is:
       1. the number of edge crossings
@@ -224,12 +248,12 @@ for key, _ in reversed(graphs.items()):
       3. the minimal distance of nodes to the nearest edge
       4. the variance of the inter-node distance
       5. the minimal distance between nodes
-      6. the variance of the edge angles at every node
+      6. the minimal angle between edges
 
     While creating fitness, I specified that I want to minimize the first two parameters and maximize the third one. We want
-    a minimal number of edge crossings. The variance of the edge lengths should be fairly low as well in order for the graph
-    to look nice - if the lengths vary a lot, the graph will be hard to read. The goal of maximizing the third parameter is increasing
-    the distance between nodes and the nearest edge - it should make the graph more readable.
+    a minimal number of edge crossings - the most important parameter. The variance of the edge lengths should be fairly low as well 
+    in order for the graph to look nice - if the lengths vary a lot, the graph will be hard to read. The goal of maximizing the third 
+    parameter is increasing the distance between nodes and the nearest edge - it should make the graph more readable.
 
     Later, I decided to add the 4th parameter which is the variance of the inter-node distance. The resulting graphs were
     already looking quite good but the nodes were often crammed together too much. This parameter will focus on achieving
@@ -238,38 +262,41 @@ for key, _ in reversed(graphs.items()):
     5th parameter is quite similar to the 4th parameter (same function computes it). We will want to maximize the minimal distance between nodes
     so that the nodes aren't crammed together too much.
 
-    6th parameter is very important as well. By minimizing the variance of the edge angles at every node, the graph will become much more readable
-    because the angles will be more uniform.
+    6th parameter is very important as well. By maximizing the minimal angle between edges, the graph will become much more readable
+    because there won't be any very small angles that cause edges to overlap.
     """
 
-    return edge_crossings(ind), node_node_dist(ind)[0], node_node_dist(ind)[1], edge_length_var(ind), node_edge_dist(ind), # edge_angle_var(ind), # ordering DOES matter! + normalize??
+    # print(-edge_crossings(ind), node_node_dist(ind)[0], node_node_dist(ind)[1], edge_length_var(ind), node_edge_dist(ind), edge_angle_var(ind))
+    return edge_crossings(ind),\
+          -weights[0] * node_node_dist(ind)[0]\
+          +weights[1] * node_node_dist(ind)[1]\
+          -weights[2] * edge_length_var(ind)\
+          +weights[3] * node_edge_dist(ind)\
+          +weights[4] * edge_angle_min(ind),
 
   """
   Creates:
     -fitness that minimizes the first two objectives and maximize the third one
     -individual that's a simple list of floats (x, y coords of a node)
   """
-
-  creator.create("FitnessMulti", base.Fitness, weights=(-1.0, -100.0, 100.0, -100.0, 100.0)) # weights don't work with some selection operators??
+  creator.create("FitnessMulti", base.Fitness, weights=(1.0, 1.0))
   creator.create("Individual", list, fitness=creator.FitnessMulti)
 
   """
   Create the initializers for individuals containing random floating point numbers and for a population that contains them.
   """
-
   IND_SIZE = n*2 # x, y coords of each node
-
   toolbox = base.Toolbox()
   toolbox.register("attribute", random.random)
   toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attribute, n=IND_SIZE)
   toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
   # MULTIPROCESSING:
-  import multiprocessing
   pool = multiprocessing.Pool()
   toolbox.register("map", pool.map)
 
   # TEST:
+  # subfolder test-results
   ind1 = toolbox.individual()
   ind1.fitness.values = evaluate(ind1)
   print(ind1.fitness)
@@ -278,49 +305,54 @@ for key, _ in reversed(graphs.items()):
   g.add_nodes_from(nodes)
   g.add_edges_from(edges)
   nx.draw(g, pos=layout, with_labels=True)
-  plt.savefig("before_" + key + ".png")
+  plt.savefig("random-layouts/random_" + key + ".png")
   plt.close()
 
   # TOOLBOX - OPERATORS:
-  # manipulating crossover and mutation operators / parameters doesn't have that much impact
-  toolbox.register("mate", tools.cxUniform, indpb=0.2) # blend (alpha=0.2 - why? what is even that?), uniform, onepoint, twopoint
+  toolbox.register("mate", tools.cxUniform, indpb=0.2)
   toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=1, indpb=0.2) # ?
-  toolbox.register("select", tools.selNSGA2, nd="standard") # some Pareto stuff + https://groups.google.com/g/deap-users/c/d9vi86HpypU + need eaMuPlusLambda?
-  # toolbox.register("select", tools.selTournament, tournsize=3)
+  # toolbox.register("select", tools.selNSGA2, nd="standard") # needs eaMuPlusLambda?
+  t = 3
+  toolbox.register("select", tools.selTournament, tournsize=t)
   toolbox.register("evaluate", evaluate)
 
   # MAIN:
-  NGEN = 2000
-  MU = 100
-  LAMBDA = 500
+  NGEN = 5000
+  MU = 15
+  LAMBDA = 0 # 0 -> eaSimple, not 0 -> eaMuPlusLambda 
   CXPB = 0.2
   MUTPB = 0.7 
-  # mail - ask if ok
 
   pop = toolbox.population(n=MU)
-  hof = tools.ParetoFront()
-  algorithms.eaMuPlusLambda(pop, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN, halloffame=hof, verbose=True);
+  # hof = tools.ParetoFront()
+  hof = tools.HallOfFame(1)
+  algorithms.eaSimple(pop, toolbox, CXPB, MUTPB, NGEN, halloffame=hof, verbose=True);
+  # algorithms.eaMuPlusLambda(pop, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN, halloffame=hof, verbose=True);
 
   # RESULTS:
-  best_individual = tools.selBest(pop, 1)[0]
-  best_layout = graph_layout(best_individual)
+  # folder results-ngen8000-x-y-z-...
+  subfolder_name = "NEW-NEW-RESULTS/results_NGEN-" + str(NGEN) + "_MU-" + str(MU)\
+    + ("_LAMBDA-" + str(LAMBDA) + "_CXPB-" if LAMBDA != 0 else "_CXPB-")\
+    + str(CXPB) + "_MUTPB-" + str(MUTPB) + ("_TOURNSIZE-" + str(t) if t != 0 else "_NSGA2")\
+    + "_" + str(weights)
+  # if os.path.exists(subfolder_name):
+  #   shutil.rmtree(subfolder_name)
+  os.makedirs(os.path.join(subfolder_name), exist_ok=True)
+
   G = nx.Graph()
   G.add_nodes_from(nodes)
   G.add_edges_from(edges)
-  nx.draw(G, pos=best_layout, with_labels=True)
-  plt.savefig("after_selbest_" + key + ".png")
-  print(best_individual.fitness)
-  plt.close()
 
+  # subfolder NEW-RESULTS/.../hof
   best_individual = hof.items[0]
   best_layout = graph_layout(best_individual)
-  nx.draw(G, pos=best_layout, with_labels=True)
-  plt.savefig("after_hof_" + key + ".png")
+  nx.draw(G, pos=best_layout, with_labels=True, node_size=100, font_size=8)
+  plt.text(0, 0, best_individual.fitness)
+  plt.savefig(subfolder_name + "/" + key + ".png")
   print(best_individual.fitness)
   plt.close()
 
-  nx.draw(G, pos=nx.spring_layout(G), with_labels=True)
-  plt.savefig("after_spring_" + key + ".png")
+  # subfolder nx-layouts
+  nx.draw(G, pos=nx.spring_layout(G), with_labels=True, node_size=100, font_size=8)
+  plt.savefig("nx-layouts/spring_" + key + ".png")
   plt.close()
-
-  #=============================================================#

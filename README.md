@@ -56,24 +56,26 @@ Description in Polish:
     * operator mutacji: mutGaussian, mu=0, sigma=1, indpb=0.2
     * metoda selekcji: selTournament(tournsize=3)
     * wagi w funkcji dopasowania:
-        * wariancja dlugosci krawedzi: 
-        * maksymalizacje minimalnej dlugosci wierzcholka od krawedzi POPRAWIC TO!
-        * wariancja odleglosci miedzy wierzcholkami:
-        * minimalna odleglosci miedzy wierzcholkami:
-        * minimalny kat miedzy krawedziami wychodzacymi z danego wierzcholka:
+        * wariancja odleglosci miedzy wierzcholkami: -1
+        * minimalna odleglosci miedzy wierzcholkami: +100
+        * wariancja dlugosci krawedzi: -100
+        * minimalna odleglosc wierzcholka od krawedzi: +1
+        * minimalny kat miedzy krawedziami wychodzacymi z danego wierzcholka: +100
 
+    Najlepszy wynik znajduje sie w folderze best-layout.
 
-    Ogolnie, algorytm lepiej sobie radzi przy malej populacji i duzej liczbie generacji. Bardzo duze znaczenie mialo rowniez dobranie
+    Ogolnie, algorytm lepiej sobie radzi przy malej populacji i duzej liczbie generacji. Bardzo duze znaczenie mialo rowniez dobranie odpowiednich wag w funkcji dopasowania. Oczywiscie, juz samo wprowadzenie dodatkowych parametrow, korzystajac z domyslnych wag, [1, 1, 1, 1, 1], mialo duzy wplyw na wyglad utworzonych grafow (wygladaly one znacznie lepiej niz z jedynm parametrem - liczba przeciec krawedzi), ale po przeprowadzeniu wielu eksperymentow, doszlismy do
+    kombinacji wag, ktora daje jeszcze lepsze rezultaty ([1, 100, 100, 1, 100]).
 
     Jako wynik ostateczny, bierzemy pierwszego osobnika z HallOfFame, czyli najlepszego osobnika z wszystkich generacji.
 
-    Wyniki dla innych konfiguracji umieszczone sa w folderach "OLD-RESULTS" i "NEW-RESULTS". W nazwie folderu sa wartosci kolejnych parametrow dla okreslonej konfiguracji. W srodku sa grafiki z rozlozeniami roznych grafow po wykonaniu algorytmu. Wyniki sprzed wykonania algorytmu (losowe rozlozenia grafu) i wyniki z gotowej biblioteki (NetworkX) dla porownania sa dostepne w folderach "random-layouts" i "nx-layouts".
+    Wyniki dla innych konfiguracji umieszczone sa w folderach "OLD-RESULTS" i "NEW-RESULTS" oraz "NEW-NEW-RESULTS". W nazwie folderu sa wartosci kolejnych parametrow dla okreslonej konfiguracji. W srodku sa grafiki z rozlozeniami roznych grafow po wykonaniu algorytmu. Wyniki sprzed wykonania algorytmu (losowe rozlozenia grafu) i wyniki z gotowej biblioteki (NetworkX) dla porownania sa dostepne w folderach "random-layouts" i "nx-layouts".
 
     Zdajemy sobie sprawe z tego, ze mozliwych kombinacji jest o wiele wiecej i ze pewnie nie osiagnelismy optimum. Czas wykonania algorytmu dla wszystkich grafow jest jednak na tyle dlugi, ze trzeba bylo sie w jakis sposob ograniczyc. Dlatego tez eksperymentowalismy glownie z roznymi rozmiarami populacji / iloscia generacji / funkcja dopasowania / pp. mutacji i krzyzowania, a operatory mutacji i krzyzowania dobralismy na samym poczatku i zostawili potem bez zmian.
 
 7. Wnioski:
 
-    Podsumowujac, program radzi sobie calkiem dobrze. Zalezy to oczywiscie od grafu, np. dla grafu "star" radzi sobie
+    Podsumowujac, program radzi sobie dobrze. Zalezy to oczywiscie od grafu, np. dla grafu "star" radzi sobie
     dosc slabo - nie ma przeciec, ale graf nie wyglada ladnie. To jest jednak prosty przypadek, dla ktorego latwo znalezc
     dobre rozwiazanie, korzystajac np. z biblioteki NetworkX i spring_layout() lub nawet rysujac graf samemu. typu. Dla grafow 
     bardzo latwych, typu "simple" lub "square3x3", radzi sobie bardzo dobrze, ale dobrze radzi sobie tez NetworkX i czlowiek 

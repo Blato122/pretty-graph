@@ -267,7 +267,7 @@ for key, value in reversed(graphs.items()): # functions and os.makedirs() in tha
     """
 
     # print(-edge_crossings(ind), node_node_dist(ind)[0], node_node_dist(ind)[1], edge_length_var(ind), node_edge_dist(ind), edge_angle_var(ind))
-    return edge_crossings(ind),\
+    return -edge_crossings(ind),\
           -weights[0] * node_node_dist(ind)[0]\
           +weights[1] * node_node_dist(ind)[1]\
           -weights[2] * edge_length_var(ind)\
@@ -343,7 +343,7 @@ for key, value in reversed(graphs.items()): # functions and os.makedirs() in tha
   G.add_nodes_from(nodes)
   G.add_edges_from(edges)
 
-  # subfolder NEW-RESULTS/.../hof
+  # subfolder NEW-RESULTS/.../...
   best_individual = hof.items[0]
   best_layout = graph_layout(best_individual)
   nx.draw(G, pos=best_layout, with_labels=True, node_size=100, font_size=8)

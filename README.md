@@ -1,3 +1,8 @@
+# pretty-graph
+A genetic algorithm program that draws a user-friendly graphical representation of a given graph.
+
+Description in Polish:
+
 ### 0. Grafy testowe:
 Na wstępie, opiszemy grafy wybrane do testowania naszego programu oraz podamy minimalną liczbę przecięć krawędzi dla każdego z nich.
 

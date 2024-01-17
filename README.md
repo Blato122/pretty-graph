@@ -86,6 +86,8 @@ Dla grafu "K47", wynik jest wlasciwie idealny, taki jak w artykule z Wikipedii: 
 
 Myslimy, ze patrzac na ograniczone mozliwosci czasowe testowania i brak wlasnych operatorow mutacji i krzyzowania, wyniki sa naprawde dobre. W przypadku potrzeby narysowania grafu ze srednia liczba wierzcholkow/krawedzi, myslimy, ze skorzystalibysmy wlasnie z tego programu.
 
+---
+
 Useful stuff:
 https://groups.google.com/g/deap-users/c/d9vi86HpypU
 https://stackoverflow.com/questions/61539157/fitness-function-with-multiple-weights-in-deap

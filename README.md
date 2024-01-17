@@ -5,7 +5,6 @@ Description in Polish:
 
 ### 0. Grafy testowe:
 Na wstępie, opiszemy grafy wybrane do testowania naszego programu oraz podamy minimalną liczbę przecięć krawędzi dla każdego z nich.
-
 * simple - bardzo prosty graf z 5 wierzchołkami i 8 krawędziami, 0 przecięć
 * square3x3 - siatka 3x3, 9 wierzchołków, 12 krawędzi, 0 przecięć
 * triangle10 - siatka trójkątna z 10 wierzchołkami i 18 krawędziami, 0 przecięć

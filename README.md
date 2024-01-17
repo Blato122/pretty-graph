@@ -5,8 +5,8 @@ Description in Polish:
 
 0. Grafy testowe:
 
-    Na wstepie, opiszemy grafy wybrane do testowania naszego programu oraz podamy minimalna liczbe przeciez krawedzi dla kazdego z nich.
-    
+    Na wstepie, opiszemy grafy wybrane do testowania naszego programu oraz podamy minimalna liczbe przeciec krawedzi dla kazdego z nich.
+
     * simple - bardzo prosty graf z 5 wierzcholkami i 8 krawedziami, 0 przeciec
     * square3x3 - siatka 3x3, 9 wierzcholkow, 12 krawedzi, 0 przeciec
     * triangle10 - siatka trojkatna z 10 wierzcholkami i 18 krawedziami, 0 przeciec

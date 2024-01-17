@@ -1,91 +1,79 @@
-# pretty-graph
-A genetic algorithm program that draws a user-friendly graphical representation of a given graph.
-
-Description in Polish:
-
 ### 0. Grafy testowe:
-Na wstepie, opiszemy grafy wybrane do testowania naszego programu oraz podamy minimalna liczbe przeciec krawedzi dla kazdego z nich.
+Na wstępie, opiszemy grafy wybrane do testowania naszego programu oraz podamy minimalną liczbę przecięć krawędzi dla każdego z nich.
 
-* simple - bardzo prosty graf z 5 wierzcholkami i 8 krawedziami, 0 przeciec
-* square3x3 - siatka 3x3, 9 wierzcholkow, 12 krawedzi, 0 przeciec
-* triangle10 - siatka trojkatna z 10 wierzcholkami i 18 krawedziami, 0 przeciec
-* medium - wymyslony graf o 18 wierzcholkach i 24 krawedziach, 0 przeciec
-* chatgpt - graf wymyslony przez chatgpt, 25 wierzcholkow i 30 krawedzi, 1 przeciecie
-* star16 - graf "gwiazda", 16 wierzcholkow, 15 krawedzi, 0 przeciec
-* K47 - graf z tresci zadania (https://en.wikipedia.org/wiki/Tur%C3%A1n's_brick_factory_problem), 18 przeciec
+* simple - bardzo prosty graf z 5 wierzchołkami i 8 krawędziami, 0 przecięć
+* square3x3 - siatka 3x3, 9 wierzchołków, 12 krawędzi, 0 przecięć
+* triangle10 - siatka trójkątna z 10 wierzchołkami i 18 krawędziami, 0 przecięć
+* medium - wymyślony graf o 18 wierzchołkach i 24 krawędziach, 0 przecięć
+* chatgpt - graf wymyślony przez ChatGPT, 25 wierzchołków i 30 krawędzi, 1 przecięcie
+* star16 - graf "gwiazda", 16 wierzchołków, 15 krawędzi, 0 przecięć
+* K47 - graf z treści zadania (https://en.wikipedia.org/wiki/Tur%C3%A1n's_brick_factory_problem), 18 przecięć
 
 ### 1. Reprezentacja:
-Na wejsciu graf jest reprezentowany jako lista krawedzi. Nie trzeba podawac nic wiecej - lista oraz liczba wierzcholkow sa automatycznie wyznaczane na podstawie krawedzi.
+Na wejściu graf jest reprezentowany jako lista krawędzi. Nie trzeba podawać nic więcej - lista oraz liczba wierzchołków są automatycznie wyznaczane na podstawie krawędzi.
 
-Aby znalezc optymalne rozlozenie wierzcholkow w grafie, potrzebujemy dodatkowo przechowywac informacje o wspolrzednych X i Y kazdego z nich, poniewaz zwykla lista krawedzi i wierzcholkow nie daje nam jeszcze zadnych informacji o graficznej reprezentacji.
+Aby znaleźć optymalne rozmieszczenie wierzchołków w grafie, potrzebujemy dodatkowo przechowywać informację o współrzędnych X i Y każdego z nich, ponieważ zwykła lista krawędzi i wierzchołków nie daje nam jeszcze żadnych informacji o graficznej reprezentacji.
 
-Wspolrzedne te sa inicjalizowane losowo, przyjmujac wartosci miedzy 0, a 1. Trzymam je w zwyklej, "plaskiej" (bez zagniezdzen), liscie o rozmiarze 2*n, gdzie n to liczba wierzcholkow grafu (\*2, bo x oraz y). Celem algorytmu genetycznego jest znalezienie takich wspolrzednych wierzcholkow, dla ktorych dopasowanie jest najlepsze.
+Współrzędne te są inicjalizowane losowo, przyjmując wartości między 0 a 1. Są trzymane w zwykłej, "płaskiej" (bez zagnieżdżeń) liście o rozmiarze 2 * n, gdzie n to liczba wierzchołków grafu (*2, bo x oraz y). Celem algorytmu genetycznego jest znalezienie takich współrzędnych wierzchołków, dla których dopasowanie jest najlepsze.
 
-Utworzylismy rowniez funkcje, ktora zwraca calosc w slowniku, ktorego kluczami sa numery wierzcholkow, a wartosciami - krotki z wspolrzednymi. Taka reprezentacja jest wygodna, czytelna, a co wiecej, obslugiwana przez NetworkX, czyli biblioteke, ktora umozliwia w latwy sposob rysowac grafy. Wystarczy podac taki slownik do grafu utworzonego z naszej listy krawedzi i wierzcholkow, zeby po wywolaniu odpowiedniej funkcji, otrzymac graficzna reprezentacje grafu, z wierzcholkami w okreslonych miejscach.
+Utworzyliśmy również funkcję, która zwraca całość w słowniku, którego kluczami są numery wierzchołków, a wartościami - krotki z współrzędnymi. Taka reprezentacja jest wygodna, czytelna, a co więcej, obsługiwana przez NetworkX, czyli bibliotekę, która umożliwia w łatwy sposób rysować grafy. Wystarczy podać taki słownik do grafu utworzonego z naszej listy krawędzi i wierzchołków, żeby po wywołaniu odpowiedniej funkcji, otrzymać graficzną reprezentację grafu, z wierzchołkami w określonych miejscach.
 
 ### 2. Operatory:
-Dobor operatorow nie mial duzego znaczenia. Jesli chodzi o operatory krzyzowania, wszystkie cztery (cxUniform, cxOnePoint, cxTwoPoint, cxBlend) sprawdzaly sie dosc dobrze i trudno mi powiedziec, ktory byl najlepszy. Ostatecznie postawilismy na cxUniform. Jesli chodzi o mutacje, wybralismy mutGaussian z "domyslnymi" parametrami, czyli: mu=0, sigma=1, indpb=0.2. Wydaje nam sie, ze to dosc popularny wybor, ktory rowniez dla tego rozwiazania wydawal nam sie sensowny. Poza tym, z naszych obserwacji wynika, ze to funkcja dopasowania, metoda selekcji, wielkosc populacji i ilosc pokolen mialy najwieksze znaczenie dla wynikow. 
+Dobór operatorów nie miał dużego znaczenia. Jeśli chodzi o operatory krzyżowania, wszystkie cztery (cxUniform, cxOnePoint, cxTwoPoint, cxBlend) sprawdzały się dosyć dobrze i trudno powiedzieć, który był najlepszy. Ostatecznie postawiliśmy na cxUniform. Jeśli chodzi o mutacje, wybraliśmy mutGaussian z "domyślnymi" parametrami, czyli: mu=0, sigma=1, indpb=0.2. Wydaje nam się, że to dosyć popularny wybór, który również dla tego rozwiązania wydawał nam się sensowny. Poza tym, z naszych obserwacji wynika, że to funkcja dopasowania, metoda selekcji, wielkość populacji i ilość pokoleń miały największe znaczenie dla wyników.
 
-Parametry, czyli prawdopodobienstwo mutacji i prawdopodobienstwo krzyzowania, rowniez nie mialy krytycznego znaczenia dla dzialania algorytmu. Wydaje nam sie, ze najlepsze wyniki osiaga wysokie pp. mutacji i niskie pp. krzyzowania (np. 0.7 i 0.2). Zgadzaloby sie to z dwoma artykulami, w ktorych autorzy podobnych algorytmow rowniez mieli wysokie pp. mutacji i niskie pp. krzyzowania (jeden z nich: https://www.emis.de/journals/DM/v92/art5.pdf, drugi niestety zgubilismy). Sprawdzalismy rowniez m.in. wartosci 0.2 i 0.7 oraz 0.5 i 0.5 i wydaje nam sie, ze byly one nieco gorszym wyborem niz 0.7 i 0.2, ale wyniki nadal byly przyzwoite. Po wiekszej ilosci testow, wydaje nam sie, ze wysokie pp. mutacji i niskie pp. krzyzowania prowadzi do najlepszych wynikow, ale tylko czasem, z kolei przy ustawieniu tych pp. na odwrot, dostajemy troche gorsze wyniki, ale bardziej spojne na przestrzeni wielu uruchomien programu.
+Parametry, czyli prawdopodobieństwo mutacji i prawdopodobieństwo krzyżowania, również nie miały krytycznego znaczenia dla działania algorytmu. Wydaje nam się, że najlepsze wyniki osiąga wysokie pp. mutacji i niskie pp. krzyżowania (np. 0.7 i 0.2). Zgadzałoby się to z dwoma artykułami, w których autorzy podobnych algorytmów również mieli wysokie pp. mutacji i niskie pp. krzyżowania (jeden z nich: https://www.emis.de/journals/DM/v92/art5.pdf, drugi niestety zgubiliśmy). Testowaliśmy również m.in. wartości 0.2 i 0.7 oraz 0.5 i 0.5, i wydaje nam się, że były one nieco gorszym wyborem niż 0.7 i 0.2, ale wyniki nadal były przyzwoite. Po większej ilości testów, wydaje nam się, że wysokie pp. mutacji i niskie pp. krzyżowania prowadzą do najlepszych wyników, ale tylko czasem, z kolei przy ustawieniu tych pp. na odwrót, dostajemy trochę gorsze wyniki, ale bardziej spójne na przestrzeni wielu uruchomień programu.
 
 ### 4. Funkcja dopasowania:
-Jest to zdecydowanie najciekawsza i pochlaniajaca najwiecej czasu czesc tego zadania. Znalezienie grafu, dla ktorego
-liczba przeciec jest minimalna bylo dosc prostym zadaniem. Wystarczylo napisac funkcje zwracajaca liczbe przeciec dla
-danego grafu i minimalizowac ten parametr. Trudniejsze bylo znalezienie parametrow (i wag), ktore nadadza grafowi ladnego
-ksztaltu. Ostatecznie padlo na:
-    1. minimalizacje wariancji dlugosci krawedzi
-    2. maksymalizacje minimalnego dlugosci wierzcholka od krawedzi
-    3. minimalizacje wariancji odleglosci miedzy wierzcholkami
-    4. maksymalizacje minimalnej odleglosci miedzy wierzcholkami
-    5. maksymalizacje minimalnego kata miedzy krawedziami wychodzacymi z danego wierzcholka
+Jest to zdecydowanie najciekawsza i pochłaniająca najwięcej czasu część tego zadania. Znalezienie grafu, dla którego liczba przecięć jest minimalna, było dosyć prostym zadaniem. Wystarczyło napisać funkcję zwracającą liczbę przecięć dla danego grafu i minimalizować ten parametr. Trudniejsze było znalezienie parametrów (i wag), które nadadzą grafowi ładnego kształtu. Ostatecznie padło na:
+    1. Minimalizację wariancji długości krawędzi
+    2. Maksymalizację minimalnej długości wierzchołka od krawędzi
+    3. Minimalizację wariancji odległości między wierzchołkami
+    4. Maksymalizację minimalnej odległości między wierzchołkami
+    5. Maksymalizację minimalnego kąta między krawędziami wychodzącymi z danego wierzchołka
 
-Wyniki sa, naszym zdaniem, naprawde dobre i poprawa wzgledem samej minimalizacji przeciec krawedzi jest zauwazalna.
+Wyniki są, naszym zdaniem, naprawdę dobre i poprawa względem samej minimalizacji przecięć krawędzi jest zauważalna.
 
-Dodatkowo, poniewaz liczba krawedzi jest podana jako pierwszy parametr, jest ona najwazniejszym parametrem, wiec
-dla kazdego obliczonego rozlozenia grafu jest ona minimalna. Drugi parametr dotyczy juz wygladu grafu i zawiera sume wazona pozostalych atrybutow, ktora nalezy zmaksymalizowac. Parametry, ktore nalezy zminimalizowac maja ujemna wage, a te, ktore nalezy zmaksymalizowac - dodatnia. Probowalismy wczesniej optymalizacji 6 osobnych parametrow, ale dawalo to o wiele gorsze efekty, wydaje sie, ze kazdy kolejny parametr mial o wiele mniejsze znaczenie.
+Dodatkowo, ponieważ liczba krawędzi jest podana jako pierwszy parametr, jest ona najważniejszym parametrem, więc dla każdego obliczonego rozmieszczenia grafu jest ona minimalna. Drugi parametr dotyczy już wyglądu grafu i zawiera sumę ważoną pozostałych atrybutów, którą należy zmaksymalizować. Parametry, które należy zminimalizować mają ujemną wagę, a te, które należy zmaksymalizować - dodatnią. Próbowaliśmy wcześniej optymalizacji 6 osobnych parametrów, ale dawało to o wiele gorsze efekty, wydaje się, że każdy kolejny parametr miał o wiele mniejsze znaczenie.
 
 ### 3. Metoda selekcji:
-Testowalismy dwie metody selekcji: selTournament i selNSGA2. Poczatkowo, korzystalismy z selNSGA2 poniewaz ma byc ona
-bardziej odpowiednia dla optymalizacji wieloparametrowej, ale po zmianie wprowadzonej w poprzednim punkcie (2 zamiast 6 parametrow), wrocilismy do selekcji turniejowej. Majac tylko dwa parametry, z czego pierwszy przyjmuje tylko wartosci calkowite, selekcja wyglada nastepujaco (zrodlo: https://groups.google.com/g/deap-users/c/d9vi86HpypU). Porownywane sa wartosci dla pierwszego parametru. Wybierany jest osobnik z lepsza wartoscia. Jesli wartosci sa takie same, przechodzimy do drugiej (juz przyjmujacej wielkosci rzeczywiste) wartosci i na jej podstawie wybieramy osobnika. Jest to dokladnie cos, czego chcemy. Jako priorytet stawiamy minimalna liczbe przeciec krawedzi. Po jakims czasie zostanie ona zminimalizowana i bedzie ona rowna dla wszystkich/wiekszosci osobnikow (przez wartosci calkowite, o ta rownosc nietrudno). Wtedy przyjdzie czas na optymalizacje grafu pod wzgledem wygladu. Testowalismy k=3 oraz k=5, wyniki sa podobne, zostalismy przy k=3.
+Testowaliśmy dwie metody selekcji: selTournament i selNSGA2. Początkowo, korzystaliśmy z selNSGA2, ponieważ ma być ona bardziej odpowiednia dla optymalizacji wieloparametrowej, ale po zmianie wprowadzonej w poprzednim punkcie (2 zamiast 6 parametrów), wróciliśmy do selekcji turniejowej. Mając tylko dwa parametry, z czego pierwszy przyjmuje tylko wartości całkowite, selekcja wygląda następująco (źródło: https://groups.google.com/g/deap-users/c/d9vi86HpypU). Porównywane są wartości dla pierwszego parametru. Wybierany jest osobnik z lepszą wartością. Jeśli wartości są takie same, przechodzimy do drugiej (już przyjmującej wartości rzeczywiste) wartości i na jej podstawie wybieramy osobnika. Jest to dokładnie to, czego chcemy. Jako priorytet stawiamy minimalną liczbę przecięć krawędzi. Po jakimś czasie zostanie ona zminimalizowana i będzie ona równa dla wszystkich/większości osobników (przez wartości całkowite, o tą równość nietrudno). Wtedy przyjdzie czas na optymalizację grafu pod względem wyglądu. Testowaliśmy k=3 oraz k=5, wyniki są podobne, zostaliśmy przy k=3.
 
 ### 5. Warunek stopu:
-Warunkiem stopu jest po prostu wykonanie zadanej liczby generacji. Gdyby z gory wiedziec, jaka jest minimalna liczba przeciec krawedzi w grafie, mozna by ustalic warunek stopu jako osiagniecie tej wartosci. Nie zawsze jednak mamy ta informacje, poza tym, oprocz minimalnej liczby przeciec, graf musi byc czytelny (a dla tego kryterium bardzo trudno wymyslic wartosc, ktora chcemy osiagnac). Stad nasz wybor. Po odpowiedniej liczbie generacji, algorytm, dla grafow na ktorych go testowalismy, i tak zawsze osiaga minimalna liczbe krawedzi (to jest zreszta najwazniejsze kryterium w dopasowaniu).
+Warunkiem stopu jest po prostu wykonanie zadanej liczby generacji. Gdyby z góry wiedzieć, jaka jest minimalna liczba przecięć krawędzi w grafie, można by ustalić warunek stopu jako osiągnięcie tej wartości. Nie zawsze jednak mamy tę informację, poza tym, oprócz minimalnej liczby przecięć, graf musi być czytelny (a dla tego kryterium bardzo trudno wymyślić wartość, którą chcemy osiągnąć). Stąd nasz wybór. Po odpowiedniej liczbie generacji, algorytm, dla grafów na których go testowaliśmy, i tak zawsze osiąga minimalną liczbę krawędzi (to jest zresztą najważniejsze kryterium w dopasowaniu).
 
 ### 6. Eksperymenty:
-Wykonalismy bardzo wiele eksperymentow i najlepsze wyniki uzyskujemy przy nastepujacej konfiguracji:
-(indbp - pp. modyfikacji wybranego elementu listy)
+Wykonaliśmy bardzo wiele eksperymentów i najlepsze wyniki uzyskujemy przy następującej konfiguracji: (indpb - pp. modyfikacji wybranego elementu listy)
+
 * liczba generacji (NGEN) = 5000
-* wielkosc populacji (MU) = 15
-* pp. krzyzowania (CXPB) = 0.2
+* wielkość populacji (MU) = 15
+* pp. krzyżowania (CXPB) = 0.2
 * pp. mutacji (MUTPB) = 0.7
-* operator krzyzowania: cxUniform, indpb=0.2
+* operator krzyżowania: cxUniform, indpb=0.2
 * operator mutacji: mutGaussian, mu=0, sigma=1, indpb=0.2
 * metoda selekcji: selTournament(tournsize=3)
 * wagi w funkcji dopasowania:
-    * wariancja odleglosci miedzy wierzcholkami: -1
-    * minimalna odleglosci miedzy wierzcholkami: +100
-    * wariancja dlugosci krawedzi: -100
-    * minimalna odleglosc wierzcholka od krawedzi: +1
-    * minimalny kat miedzy krawedziami wychodzacymi z danego wierzcholka: +100
+    * wariancja odleglości między wierzchołkami: -1
+    * minimalna odleglości między wierzchołkami: +100
+    * wariancja długości krawędzi: -100
+    * minimalna odleglość wierzchołka od krawędzi: +1
+    * minimalny kąt miedzy krawędziami wychodzącymi z danego wierzchołka: +100
 
-Najlepszy wynik znajduje sie w folderze best-layout.
+Najlepszy wynik znajduje się w folderze "best-layout".
 
-Ogolnie, algorytm lepiej sobie radzi przy malej populacji i duzej liczbie generacji. Bardzo duze znaczenie mialo rowniez dobranie odpowiednich wag w funkcji dopasowania. Oczywiscie, juz samo wprowadzenie dodatkowych parametrow, korzystajac z domyslnych wag, [1, 1, 1, 1, 1], mialo duzy wplyw na wyglad utworzonych grafow (wygladaly one znacznie lepiej niz z jedynm parametrem - liczba przeciec krawedzi), ale po przeprowadzeniu wielu eksperymentow, doszlismy do
-kombinacji wag, ktora daje jeszcze lepsze rezultaty ([1, 100, 100, 1, 100]).
+Ogólnie, algorytm lepiej sobie radzi przy małej populacji i dużej liczbie generacji. Bardzo duże znaczenie miało również dobranie odpowiednich wag w funkcji dopasowania. Oczywiście, już samo wprowadzenie dodatkowych parametrów, korzystając z domyślnych wag, [1, 1, 1, 1, 1], miało duży wpływ na wygląd utworzonych grafów (wyglądały one znacznie lepiej niż z jednym parametrem - liczba przecięć krawędzi), ale po przeprowadzeniu wielu eksperymentów, doszliśmy do kombinacji wag, która daje jeszcze lepsze rezultaty ([1, 100, 100, 1, 100]).
 
 Jako wynik ostateczny, bierzemy pierwszego osobnika z HallOfFame, czyli najlepszego osobnika z wszystkich generacji.
 
-Wyniki dla innych konfiguracji umieszczone sa w folderach "OLD-RESULTS" i "NEW-RESULTS" oraz "NEW-NEW-RESULTS". W nazwie podfolderu sa wartosci kolejnych parametrow dla okreslonej konfiguracji. W srodku sa grafiki z rozlozeniami roznych grafow po wykonaniu algorytmu. Wyniki sprzed wykonania algorytmu (losowe rozlozenia grafu) i wyniki z gotowej biblioteki (NetworkX) dla porownania sa dostepne w folderach "random-layouts" i "nx-layouts".
+Wyniki dla innych konfiguracji umieszczone są w folderach "OLD-RESULTS" i "NEW-RESULTS" oraz "NEW-NEW-RESULTS". W nazwie podfolderu są wartości kolejnych parametrów dla określonej konfiguracji. W środku są grafiki z rozłożeniami różnych grafów po wykonaniu algorytmu. Wyniki sprzed wykonania algorytmu (losowe rozłożenia grafu) i wyniki z gotowej biblioteki (NetworkX) dla porównania są dostępne w folderach "random-layouts" i "nx-layouts".
 
-Zdajemy sobie sprawe z tego, ze mozliwych kombinacji jest o wiele wiecej i ze pewnie nie osiagnelismy optimum. Czas wykonania algorytmu dla wszystkich grafow jest jednak na tyle dlugi, ze trzeba bylo sie w jakis sposob ograniczyc. Dlatego tez eksperymentowalismy glownie z roznymi rozmiarami populacji / iloscia generacji / funkcja dopasowania / pp. mutacji i krzyzowania, a operatory mutacji i krzyzowania dobralismy na samym poczatku i zostawili potem bez zmian. Drobnym problemem byl rowniez sam wybor przetestowanych juz wczesniej parametrow. Czasami trudno bylo stwierdzic ktore wyniki sa wlasciwie lepsze i w ktora strone powinnismy podazac. Trudno w koncu jednoznacznie ocenic "ladnosc" grafu. Ostatecznie jednak udalo nam sie znalezc zbior parametrow i operatorow, dla ktorego wyniki sa zadowalajace.
+Zdajemy sobie sprawę z tego, że możliwych kombinacji jest o wiele więcej i że pewnie nie osiągnęliśmy optimum. Czas wykonania algorytmu dla wszystkich grafów jest jednak na tyle długi, że trzeba było się w jakiś sposób ograniczyć. Dlatego też eksperymentowaliśmy głównie z różnymi rozmiarami populacji, ilością generacji, funkcją dopasowania, pp. mutacji i krzyżowania, a operatory mutacji i krzyżowania dobraliśmy na samym początku i zostawiliśmy potem bez zmian. Drobnym problemem był również sam wybór przetestowanych już wcześniej parametrów. Czasami trudno było stwierdzić, które wyniki są właściwie lepsze i w którą stronę powinniśmy podążać. Trudno w końcu jednoznacznie ocenić "ładność" grafu. Ostatecznie jednak udało nam się znaleźć zbiór parametrów i operatorów, dla których wyniki są zadowalające.
 
 ### 7. Wnioski:
-Podsumowujac, program radzi sobie dobrze. Ze wzgledu na czas wykonania, testowalismy go na grafach malych lub srednich (do kilkudziesieciu krawedzi). Dla grafow bardzo prostych, typu "square3x3", "simple" lub "triangle", wyniki sa perfekcyjne, lecz nie jest to zaden wyczyn - czlowiek z kartka i dlugopisem w reku poradzilby sobie rownie dobrze. Biblioteka NetworkX rowniez rozwiazuje te problemy bezblednie (chociaz akurat dla "square3x3" jej wyniki sa o dziwo bardzo slabe). Ciekawsza jest grupa grafow troche wiekszych i bardziej skomplikowanych.
+Podsumowując, program radzi sobie dobrze. Ze względu na czas wykonania, testowaliśmy go na grafach małych lub średnich (do kilkudziesięciu krawędzi). Dla grafów bardzo prostych, typu "square3x3", "simple" lub "triangle", wyniki są perfekcyjne, lecz nie jest to żaden wyczyn - człowiek z kartką i długopisem w ręku poradziłby sobie równie dobrze. Biblioteka NetworkX również rozwiązuje te problemy bezbłędnie (choć akurat dla "square3x3" jej wyniki są o dziwo bardzo słabe). Ciekawsza jest grupa grafów trochę większych i bardziej skomplikowanych.
 
-Dla grafu "K47", wynik jest wlasciwie idealny, taki jak w artykule z Wikipedii: https://en.wikipedia.org/wiki/Tur%C3%A1n's_brick_factory_problem. Graf jest czytelny, osiagnieta zostala tez minimalna liczba przeciec (18). Mysle, ze czlowiek mialby juz duzy problem z ladnym (i szybkim) narysowaniem tego grafu, NetworkX tez poradzil sobie o wiele gorzej. Program dobrze poradzil sobie rowniez z dosc "losowymi" grafami, bez zadnej konkretnej struktury, czyli "chatgpt" (graf wygenerowany przez chat) oraz "medium".
+Dla grafu "K47", wynik jest właściwie idealny, taki jak w artykule z Wikipedii: https://en.wikipedia.org/wiki/Tur%C3%A1n's_brick_factory_problem. Graf jest czytelny, osiągnięta została też minimalna liczba przecięć (18). Myślę, że człowiek miałby już duży problem z ładnym (i szybkim) narysowaniem tego grafu, NetworkX również poradził sobie o wiele gorzej. Program dobrze poradził sobie również z dość "losowymi" grafami, bez żadnej konkretnej struktury, czyli "chatgpt" (graf wygenerowany przez chat) oraz "medium".
 
-Myslimy, ze patrzac na ograniczone mozliwosci czasowe testowania i brak wlasnych operatorow mutacji i krzyzowania, wyniki sa naprawde dobre. W przypadku potrzeby narysowania grafu ze srednia liczba wierzcholkow/krawedzi, myslimy, ze skorzystalibysmy wlasnie z tego programu.
-
+Myślimy, że patrząc na ograniczone możliwości czasowe testowania i brak własnych operatorów mutacji i krzyżowania, wyniki są naprawdę dobre. W przypadku potrzeby narysowania grafu ze średnią liczbą wierzchołków/krawędzi, myślimy, że skorzystalibyśmy właśnie z tego programu.
 ---
 
 Useful stuff:

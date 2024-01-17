@@ -30,11 +30,12 @@ Parametry, czyli prawdopodobieństwo mutacji i prawdopodobieństwo krzyżowania,
 
 ### 4. Funkcja dopasowania:
 Jest to zdecydowanie najciekawsza i pochłaniająca najwięcej czasu część tego zadania. Znalezienie grafu, dla którego liczba przecięć jest minimalna, było dosyć prostym zadaniem. Wystarczyło napisać funkcję zwracającą liczbę przecięć dla danego grafu i minimalizować ten parametr. Trudniejsze było znalezienie parametrów (i wag), które nadadzą grafowi ładnego kształtu. Ostatecznie padło na:
-    1. Minimalizację wariancji długości krawędzi
-    2. Maksymalizację minimalnej długości wierzchołka od krawędzi
-    3. Minimalizację wariancji odległości między wierzchołkami
-    4. Maksymalizację minimalnej odległości między wierzchołkami
-    5. Maksymalizację minimalnego kąta między krawędziami wychodzącymi z danego wierzchołka
+
+1. Minimalizację wariancji długości krawędzi
+2. Maksymalizację minimalnej długości wierzchołka od krawędzi
+3. Minimalizację wariancji odległości między wierzchołkami
+4. Maksymalizację minimalnej odległości między wierzchołkami
+5. Maksymalizację minimalnego kąta między krawędziami wychodzącymi z danego wierzchołka
 
 Wyniki są, naszym zdaniem, naprawdę dobre i poprawa względem samej minimalizacji przecięć krawędzi jest zauważalna.
 
@@ -79,6 +80,7 @@ Podsumowując, program radzi sobie dobrze. Ze względu na czas wykonania, testow
 Dla grafu "K47", wynik jest właściwie idealny, taki jak w artykule z Wikipedii: https://en.wikipedia.org/wiki/Tur%C3%A1n's_brick_factory_problem. Graf jest czytelny, osiągnięta została też minimalna liczba przecięć (18). Myślę, że człowiek miałby już duży problem z ładnym (i szybkim) narysowaniem tego grafu, NetworkX również poradził sobie o wiele gorzej. Program dobrze poradził sobie również z dość "losowymi" grafami, bez żadnej konkretnej struktury, czyli "chatgpt" (graf wygenerowany przez chat) oraz "medium".
 
 Myślimy, że patrząc na ograniczone możliwości czasowe testowania i brak własnych operatorów mutacji i krzyżowania, wyniki są naprawdę dobre. W przypadku potrzeby narysowania grafu ze średnią liczbą wierzchołków/krawędzi, myślimy, że skorzystalibyśmy właśnie z tego programu.
+
 ---
 
 Useful stuff:

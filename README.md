@@ -6,13 +6,14 @@ Description in Polish:
 0. Grafy testowe:
 
     Na wstepie, opiszemy grafy wybrane do testowania naszego programu oraz podamy minimalna liczbe przeciez krawedzi dla kazdego z nich.
-    * simple - 
-    * square3x3 - 
-    * triangle10 - 
-    * medium - 
-    * chatgpt - 
-    * star16 - 
-    * K47 - 
+    
+    * simple - bardzo prosty graf z 5 wierzcholkami i 8 krawedziami, 0 przeciec
+    * square3x3 - siatka 3x3, 9 wierzcholkow, 12 krawedzi, 0 przeciec
+    * triangle10 - siatka trojkatna z 10 wierzcholkami i 18 krawedziami, 0 przeciec
+    * medium - wymyslony graf o 18 wierzcholkach i 24 krawedziach, 0 przeciec
+    * chatgpt - graf wymyslony przez chatgpt, 25 wierzcholkow i 30 krawedzi, 1 przeciecie
+    * star16 - graf "gwiazda", 16 wierzcholkow, 15 krawedzi, 0 przeciec
+    * K47 - graf z tresci zadania (https://en.wikipedia.org/wiki/Tur%C3%A1n's_brick_factory_problem), 18 przeciec
 
 1. Reprezentacja:
 
